@@ -251,6 +251,12 @@ summary { cursor: pointer; color: var(--accent); }
       <label>個人年金保険料<input type="text" id="lifePension" inputmode="numeric"></label>
       <label>地震保険料<button type="button" class="term" data-term="jishin" aria-label="用語の説明">?</button><input type="text" id="quake" inputmode="numeric"></label>
     </div>
+    <h3 style="font-size:.95rem;margin:16px 0 8px">生命保険料（旧制度）<button type="button" class="term" data-term="kyuSeido" aria-label="用語の説明">?</button> <small style="font-weight:400;color:var(--muted)">2011年（平成23年）12月31日までに契約した保険</small></h3>
+    <div class="grid">
+      <label>一般生命保険料（旧）<input type="text" id="lifeGeneralOld" inputmode="numeric"></label>
+      <label>個人年金保険料（旧）<input type="text" id="lifePensionOld" inputmode="numeric"></label>
+    </div>
+    <p class="hint" style="margin-top:8px">控除証明書のハガキに「旧制度」「旧契約」と書かれている金額です。新・旧の両方がある場合は、いちばん得になる組み合わせを自動で選びます。</p>
     <p class="hint" style="margin-top:8px" id="lifeHint"></p>
     </div>
     <div id="s5house">
@@ -260,6 +266,22 @@ summary { cursor: pointer; color: var(--accent); }
         <input type="text" id="housing" inputmode="numeric"></label>
     </div>
     <p class="hint" style="margin-top:8px">1年目は会社ではなく確定申告で受けます。2年目以降は、税務署から届く申告書と、金融機関の「年末残高等証明書」を会社に出します。</p>
+    </div>
+  </section>
+
+  <!-- STEP 6 -->
+  <section class="card" id="secSide">
+    <h2><span class="num">6</span>給与以外の収入（副業など）<button type="button" class="term" data-term="kakutei" aria-label="用語の説明">?</button></h2>
+    <p class="hint">ある人だけ入力します。会社の年末調整は<b>本業の給与だけ</b>で精算されるため、副業などの分は<b>確定申告</b>で精算します。ここに入れると、確定申告で追加で払う（または戻る）金額の目安と、住民税・手取りへの影響がわかります。</p>
+    <div class="grid">
+      <label>2か所目の会社の給与（年間）<small>（アルバイトなどの副業）</small><input type="text" id="sideSalary" inputmode="numeric"></label>
+      <label>そこで引かれた所得税<input type="text" id="sideWithheld" inputmode="numeric"></label>
+    </div>
+    <div class="grid" style="margin-top:12px">
+      <label>副業の売上<button type="button" class="term" data-term="zatsu" aria-label="用語の説明">?</button> <small>（業務委託・フリーランス・ネット販売など）</small><input type="text" id="bizRevenue" inputmode="numeric"></label>
+      <label>その経費<input type="text" id="bizExpense" inputmode="numeric"></label>
+      <label>売上から引かれた源泉所得税 <small>（支払調書などに記載。なければ0）</small><input type="text" id="bizWithheld" inputmode="numeric"></label>
+      <label>その他の所得 <small>（年金・不動産など。「所得」の金額で）</small><input type="text" id="otherIncome" inputmode="numeric"></label>
     </div>
   </section>
 
@@ -302,6 +324,7 @@ summary { cursor: pointer; color: var(--accent); }
     <h2>計算結果</h2>
     <div id="resultBig" class="result-big even"><div class="lbl">年収を入力してください</div><div class="amt">—</div></div>
     <table id="resultTable"></table>
+    <div id="kakuteiBox"></div>
     <details>
       <summary>計算のしくみ（ざっくり）</summary>
       <ol style="padding-left:18px;margin:8px 0">
@@ -330,7 +353,7 @@ summary { cursor: pointer; color: var(--accent); }
   </section>
 
   <section class="card" style="margin-top:16px">
-    <p class="note" style="margin-top:0">※令和8年度税制改正（基礎控除最大104万円・給与所得控除最低74万円、いわゆる178万円の壁）に基づく概算です。給与所得控除は国税庁の別表第五に近い方法で計算していますが、端数で数円〜数百円ずれる場合があります。給与以外の所得がある方、旧制度の生命保険料がある方などは対象外です。最終的な金額は勤務先・国税庁の資料でご確認ください。</p>
+    <p class="note" style="margin-top:0">※令和8年度税制改正（基礎控除最大104万円・給与所得控除最低74万円、いわゆる178万円の壁）に基づく概算です。給与所得控除は国税庁の別表第五に近い方法で計算していますが、端数で数円〜数百円ずれる場合があります。副業の青色申告特別控除・赤字の差し引き（損益通算）、株・FXなど分離課税の所得、医療費控除・ふるさと納税は計算に入れていません。最終的な金額は勤務先・国税庁の資料でご確認ください。</p>
   </section>
 </aside>
 </main>
@@ -474,6 +497,30 @@ function dependentDeductionResident(d) {
   return 0;
 }
 // 生命保険料控除（住民税・新制度）：各2.8万円、合計7万円まで
+// 旧制度（所得税：各5万円まで／住民税：各3.5万円まで）
+function lifeOld(p) {
+  if (p <= 25_000) return p;
+  if (p <= 50_000) return Math.ceil(p / 2 + 12_500);
+  if (p <= 100_000) return Math.ceil(p / 4 + 25_000);
+  return 50_000;
+}
+function lifeOldResident(p) {
+  if (p <= 15_000) return p;
+  if (p <= 40_000) return Math.ceil(p / 2 + 7_500);
+  if (p <= 70_000) return Math.ceil(p / 4 + 17_500);
+  return 35_000;
+}
+// 新・旧の両方がある区分：「旧だけ」と「新＋旧（上限あり）」の多いほう
+function lifeCat(nw, old, cap = 40_000) {
+  const a = lifeNew(nw, cap), b = lifeOld(old);
+  if (!old) return a; if (!nw) return b;
+  return Math.max(b, Math.min(cap, a + b));
+}
+function lifeCatR(nw, old) {
+  const a = lifeResident(nw), b = lifeOldResident(old);
+  if (!old) return a; if (!nw) return b;
+  return Math.max(b, Math.min(28_000, a + b));
+}
 function lifeResident(p) {
   if (p <= 12_000) return p;
   if (p <= 32_000) return Math.ceil(p / 2 + 6_000);
@@ -509,6 +556,9 @@ const TERMS = {
   kintowari: ['均等割', '住民税のうち、所得に関係なく定額でかかる部分。標準で年5,000円（森林環境税1,000円を含む）です。'],
   choseiKojo: ['調整控除', '住民税の控除額は所得税より小さく設定されています。その差で税負担が重くなりすぎないよう、住民税から差し引かれる金額です。'],
   shahoKanyu: ['社会保険に入るライン', '年収が130万円以上になると、家族の社会保険の扶養から外れ、自分で健康保険・年金の保険料を払います（19〜22歳は150万円、60歳以上は180万円）。従業員51人以上の会社などで週20時間以上働く場合は、年収106万円（月8.8万円）以上で勤務先の社会保険に入ります。'],
+  kyuSeido: ['旧制度の生命保険料', '2011年（平成23年）12月31日までに契約した生命保険・個人年金保険は「旧制度」で計算します。所得税は1区分あたり最大5万円（新制度は4万円）。新・旧の両方があるときは、旧だけで計算するか、新旧を合わせて最大4万円にするか、多いほうを選べます。'],
+  kakutei: ['確定申告', '1年分の所得と税金を自分で計算して、翌年2月16日〜3月15日に税務署へ申告する手続き。会社員でも、副業などの所得が20万円を超える場合は必要です。'],
+  zatsu: ['副業の所得（事業所得・雑所得）', '業務委託・フリーランス・ネット販売などの副業は、売上から経費を引いた残りが「所得」になります。給与としてもらう副業（アルバイトなど）は、給与所得として本業と合算します。'],
   tedori: ['手取り', '年収から税金（所得税・住民税）と社会保険料を引いた、実際に使えるお金の目安です。'],
 };
 const termBtn = k => `<button type="button" class="term" data-term="${k}" aria-label="用語の説明">?</button>`;
@@ -606,13 +656,21 @@ function calc(o = {}) {
   const deps_ = o.deps || deps;
   const income = o.income ?? getIncome();
   const kyuyo = salaryIncome(income);
+  // 給与以外の収入（副業など）
+  const sideSalary = val('sideSalary'), bizRev = val('bizRevenue');
+  const bizIncome = Math.max(0, bizRev - val('bizExpense'));
+  const otherIncome = val('otherIncome');
+  const sideWithheld = val('sideWithheld') + val('bizWithheld');
+  const hasSide = !!(sideSalary || bizRev || otherIncome);
 
   // 所得金額調整控除（850万円超で23歳未満の扶養・特別障害者がいる場合）
   let adj = 0;
   const hasYoung = deps_.some(d => ['u16', 'teen', 'tokutei'].includes(d.age));
   const hasSpecialDis = $('selfDisability').value === '400000' || deps_.some(d => d.disability >= 400000) || ($('hasSpouse').checked && Number($('spouseDisability').value) >= 400000);
   if (income > 8_500_000 && (hasYoung || hasSpecialDis)) adj = Math.ceil((Math.min(income, 10_000_000) - 8_500_000) * 0.1);
-  const totalIncome = Math.max(0, kyuyo - adj);
+  const mainIncome = Math.max(0, kyuyo - adj);                      // 会社の年末調整で使う給与所得
+  const kyuyoAll = sideSalary ? Math.max(0, salaryIncome(income + sideSalary) - adj) : mainIncome; // 給与を合算した給与所得
+  const totalIncome = kyuyoAll + bizIncome + otherIncome;               // 合計所得金額
 
   // 控除（ded：所得税、dedR：住民税、diffs：調整控除用の人的控除の差）
   const ded = [], dedR = [];
@@ -625,9 +683,10 @@ function calc(o = {}) {
   both('社会保険料控除', social, social, 'shaho');
   both('小規模企業共済等掛金控除（iDeCo等）', val('ideco'), val('ideco'), 'ideco');
   const young23 = deps_.some(d => ['u16', 'teen', 'tokutei'].includes(d.age) && salaryIncome(d.income) <= DEP_LIMIT);
-  const lifeG = lifeNew(val('lifeGeneral'), young23 ? 60_000 : 40_000);
-  const life = Math.min(120_000, lifeG + lifeNew(val('lifeMedical')) + lifeNew(val('lifePension')));
-  const lifeR = Math.min(70_000, lifeResident(val('lifeGeneral')) + lifeResident(val('lifeMedical')) + lifeResident(val('lifePension')));
+  const lifeG = lifeCat(val('lifeGeneral'), val('lifeGeneralOld'), young23 ? 60_000 : 40_000);
+  const lifeP = lifeCat(val('lifePension'), val('lifePensionOld'));
+  const life = Math.min(120_000, lifeG + lifeNew(val('lifeMedical')) + lifeP);
+  const lifeR = Math.min(70_000, lifeCatR(val('lifeGeneral'), val('lifeGeneralOld')) + lifeResident(val('lifeMedical')) + lifeCatR(val('lifePension'), val('lifePensionOld')));
   if (!sim) $('lifeHint').textContent = young23 ? '※23歳未満の扶養家族がいるため、一般生命保険料の上限は6万円（令和8年分の特例）で計算しています。' : '';
   both('生命保険料控除', life, lifeR, 'seiho');
   both('地震保険料控除', Math.min(50_000, val('quake')), Math.min(25_000, Math.floor(val('quake') / 2)), 'jishin');
@@ -669,12 +728,22 @@ function calc(o = {}) {
   if (totalIncome <= 25_000_000) personalDiff += 50_000; // 基礎控除の差は法律で5万円と決まっている
 
   const dedSum = ded.reduce((s, [, v]) => s + v, 0);
-  const taxable = floorTo(Math.max(0, totalIncome - dedSum), 1000);
+  // 会社の年末調整（本業の給与だけ。控除の判定は合計所得で行う）
+  const taxable = floorTo(Math.max(0, mainIncome - dedSum), 1000);
   const { tax, rate } = incomeTax(taxable);
   const housingCredit = Math.min(tax, val('housing'));
   const annualTax = floorTo((tax - housingCredit) * 1.021, 100);
   const withheld = val('withheld');
   const diff = withheld - annualTax;
+  // 1年分の本当の所得税（確定申告で精算する）
+  const taxableAll = floorTo(Math.max(0, totalIncome - dedSum), 1000);
+  const taxAllInfo = incomeTax(taxableAll);
+  const housingAll = Math.min(taxAllInfo.tax, val('housing'));
+  const annualTaxAll = floorTo((taxAllInfo.tax - housingAll) * 1.021, 100);
+  const kakutei = annualTaxAll - annualTax - sideWithheld;   // ＋なら確定申告で納付、−なら還付
+  // 確定申告が必要か（給与以外の所得が20万円超、または2か所から給与があり副業給与＋給与以外の所得が20万円超）
+  const otherAll = bizIncome + otherIncome;
+  const needKakutei = otherAll > 200_000 || (sideSalary > 0 && sideSalary + otherAll > 200_000);
 
   // ===== 住民税（令和9年度分：令和8年の所得にかかる分） =====
   const dedSumR = dedR.reduce((s, [, v]) => s + v, 0);
@@ -687,8 +756,8 @@ function calc(o = {}) {
   }
   let shotokuwari = Math.max(0, Math.floor(taxableR * 0.10) - choseiKojo);
   // 住宅ローン控除：所得税で引ききれなかった分を、所得税の課税所得×5%（上限97,500円）まで
-  const housingLeft = Math.max(0, val('housing') - housingCredit);
-  const housingR = Math.min(shotokuwari, housingLeft, Math.min(Math.floor(taxable * 0.05), 97_500));
+  const housingLeft = Math.max(0, val('housing') - housingAll);
+  const housingR = Math.min(shotokuwari, housingLeft, Math.min(Math.floor(taxableAll * 0.05), 97_500));
   shotokuwari = floorTo(shotokuwari - housingR, 100);
   // 非課税の判定（生活保護の級地が1級地の場合の基準）
   const n = familyCount;
@@ -702,7 +771,9 @@ function calc(o = {}) {
   return { income, kyuyo, adj, totalIncome, ded, dedSum, taxable, tax, rate, housingCredit, annualTax, withheld, diff,
     social, dedR, dedSumR, taxableR, personalDiff, choseiKojo, housingR, shotokuwari, kintowari, residentTax,
     exemptAll, exemptShotoku, sp, depResults, selfDis, widow, student, young23,
-    life, lifeG, basic: basicDeduction(totalIncome) };
+    life, lifeG, basic: basicDeduction(totalIncome),
+    hasSide, sideSalary, bizRev, bizIncome, otherIncome, sideWithheld, mainIncome, kyuyoAll, taxableAll, annualTaxAll, kakutei, needKakutei,
+    tedori: income + sideSalary + bizIncome + otherIncome - social - annualTaxAll - residentTax };
 }
 
 function update() {
@@ -734,6 +805,10 @@ function update() {
   rows.push(['年税額（復興特別所得税込み）', r.annualTax, 'total', 'nenzei']);
   if (r.withheld) rows.push(['すでに引かれた税額', r.withheld, '', 'gensen']);
   $('resultTable').innerHTML = renderRows(rows);
+  $('kakuteiBox').innerHTML = !r.hasSide ? '' : `<div class="result-big ${r.kakutei > 0 ? 'pay' : 'refund'}" style="margin:12px 0 0;padding:12px">
+    <div class="lbl">副業などの分：確定申告で${r.kakutei > 0 ? '追加で払う' : '戻ってくる'}目安${termBtn('kakutei')}</div>
+    <div class="amt" style="font-size:1.4rem">${r.kakutei > 0 ? '−' : '＋'}${yen(Math.abs(r.kakutei))}</div>
+    <div class="lbl" style="font-weight:400;font-size:.8rem">${r.needKakutei ? '確定申告が必要です（翌年3月15日まで）' : '所得税の確定申告は原則不要（住民税の申告は必要）'}。上の金額は会社の年末調整の分です。</div></div>`;
   renderTedori(r);
   renderGuide(r);
   scheduleWall();
@@ -748,14 +823,16 @@ function renderTedori(r) {
     $('juminTable').innerHTML = '';
     return;
   }
-  const tedori = r.income - r.social - r.annualTax - r.residentTax;
-  const rows = [
-    ['年収（給与収入）', r.income, 'total', 'kyuyoShunyu'],
+  const tedori = r.tedori;
+  const rows = [['年収（給与収入）', r.income, 'total', 'kyuyoShunyu']];
+  if (r.sideSalary) rows.push(['副業の給与', r.sideSalary, '']);
+  if (r.bizIncome) rows.push(['副業の所得（売上−経費）', r.bizIncome, '', 'zatsu']);
+  if (r.otherIncome) rows.push(['その他の所得', r.otherIncome, '']);
+  rows.push(
     ['社会保険料', -r.social, 'sub', 'shaho'],
-    ['所得税（年税額）', -r.annualTax, 'sub', 'nenzei'],
+    ['所得税（' + (r.hasSide ? '確定申告後の1年分' : '年税額') + '）', -r.annualTaxAll, 'sub', 'nenzei'],
     ['住民税（目安）', -r.residentTax, 'sub', 'jumin'],
-    ['手取り（年間）', tedori, 'total', 'tedori'],
-  ];
+    ['手取り（年間）', tedori, 'total', 'tedori']);
   $('tedoriBox').innerHTML = `
     <div class="tedori-big"><div><small>手取り（年間）</small><span class="amt">${yen(tedori)}</span></div>
       <div style="text-align:right"><small>月あたり（÷12）</small><b>${yen(tedori / 12)}</b></div></div>
@@ -764,6 +841,7 @@ function renderTedori(r) {
     ${r.social ? '' : '<p class="warn">社会保険料が未入力のため、手取りが実際より多く出ています。STEP 5 の「年収の約15%で推計して入れる」ボタンで入れられます。</p>'}`;
   const jr = [['給与所得', r.kyuyo, 'total', 'kyuyoShotoku']];
   if (r.adj) jr.push(['所得金額調整控除', -r.adj, 'sub', 'choseiShotoku']);
+  if (r.hasSide) jr.push(['合計所得金額（副業などを含む）', r.totalIncome, 'total']);
   r.dedR.filter(([, v]) => v).forEach(([k, v, t]) => jr.push([k, -v, 'sub', t]));
   jr.push(['課税所得（千円未満切捨て）', r.taxableR, 'total', 'kazei']);
   jr.push(['所得割（課税所得 × 10%）', Math.floor(r.taxableR * 0.10), '', 'shotokuwari']);
@@ -817,12 +895,12 @@ function wallPoint(x, who) {
   const soc = x >= line ? Math.round(x * 0.15) : 0;
   if (who === 'self') {
     const r = calc({ income: x, social: soc + val('socialIns2') });
-    const own = x - r.social - r.annualTax - r.residentTax;
-    return { x, total: own, main: own, other: 0, it: r.annualTax, rt: r.residentTax, soc };
+    const own = r.tedori;
+    return { x, total: own, main: own, other: 0, it: r.annualTaxAll, rt: r.residentTax, soc };
   }
   const i = who.startsWith('dep:') ? +who.slice(4) : -1;
   const base = calc(i < 0 ? { spouseIncome: x } : { deps: deps.map((d, j) => j === i ? { ...d, income: x } : d) });
-  const main = base.income - base.social - base.annualTax - base.residentTax;
+  const main = base.tedori;
   const t = ownTax(x, soc);
   const other = x - soc - t.it - t.rt;
   return { x, total: main + other, main, other, it: t.it, rt: t.rt, soc };
@@ -1010,7 +1088,9 @@ function renderGuide(r) {
   // 2. 基礎控除申告書 兼 配偶者控除等申告書 兼 特定親族特別控除申告書 兼 所得金額調整控除申告書
   {
     let body = '<h4>基礎控除申告書（全員）</h4>' + fill([
-      ['給与の収入金額', r.income], ['給与の所得金額', r.kyuyo], ['あなたの合計所得金額（見積額）', r.totalIncome], ['基礎控除の額', r.basic]]);
+      ['給与の収入金額' + (r.sideSalary ? '（副業の給与も合計）' : ''), r.income + r.sideSalary], ['給与の所得金額', r.kyuyoAll],
+      ...(r.bizIncome + r.otherIncome ? [['給与所得以外の所得の合計額', r.bizIncome + r.otherIncome]] : []),
+      ['あなたの合計所得金額（見積額）', r.totalIncome], ['基礎控除の額', r.basic]]);
     body += '<p class="none">判定欄は、合計所得金額が当てはまる区分を選びます。</p>';
     if (r.sp) {
       const k1 = r.totalIncome <= 9_000_000 ? 'A' : r.totalIncome <= 9_500_000 ? 'B' : r.totalIncome <= 10_000_000 ? 'C' : null;
@@ -1035,12 +1115,16 @@ function renderGuide(r) {
   // 3. 保険料控除申告書
   {
     let body = '';
-    const g = val('lifeGeneral'), m = val('lifeMedical'), p = val('lifePension');
-    if (g || m || p) {
-      const rows = [];
-      if (g) rows.push(['一般生命保険料（新）の合計', g], ['　→ 計算後の金額', lifeNew(g, r.young23 ? 60_000 : 40_000)]);
+    const g = val('lifeGeneral'), m = val('lifeMedical'), p = val('lifePension'), go = val('lifeGeneralOld'), po = val('lifePensionOld');
+    if (g || m || p || go || po) {
+      const rows = [], cap = r.young23 ? 60_000 : 40_000;
+      if (g) rows.push(['一般生命保険料（新）の合計', g], ['　→ 計算後の金額', lifeNew(g, cap)]);
+      if (go) rows.push(['一般生命保険料（旧）の合計', go], ['　→ 計算後の金額', lifeOld(go)]);
+      if (g && go) rows.push(['　→ 一般の控除額（新旧で有利な方）', lifeCat(g, go, cap)]);
       if (m) rows.push(['介護医療保険料の合計', m], ['　→ 計算後の金額', lifeNew(m)]);
       if (p) rows.push(['個人年金保険料（新）の合計', p], ['　→ 計算後の金額', lifeNew(p)]);
+      if (po) rows.push(['個人年金保険料（旧）の合計', po], ['　→ 計算後の金額', lifeOld(po)]);
+      if (p && po) rows.push(['　→ 個人年金の控除額（新旧で有利な方）', lifeCat(p, po)]);
       rows.push(['生命保険料控除額（最高12万円）', r.life]);
       body += '<h4>生命保険料控除</h4>' + fill(rows) +
         '<p class="none">保険会社名・保険の種類・契約者・受取人などは、控除証明書のハガキから写します。ハガキは添付します。' +
@@ -1051,6 +1135,15 @@ function renderGuide(r) {
     if (val('ideco')) body += '<h4>小規模企業共済等掛金控除</h4>' + fill([['iDeCo・小規模企業共済の掛金', val('ideco')]]) + '<p class="none">自分の口座から払っている場合だけ書きます（給料から天引きされている場合は書きません）。払込証明書を添付します。</p>';
     out.push(sec('3. 保険料控除申告書', '（令和8年分。保険料を払った人）', body || '<p class="none">入力された保険料がないので、書くものはありません。</p>', !!body));
   }
+
+  // 確定申告（副業など）
+  if (r.hasSide) out.push(sec('★ 確定申告（副業など）', '（翌年2月16日〜3月15日）',
+    (r.needKakutei
+      ? '<p>給与以外の所得などが20万円を超えるので、<b>確定申告が必要</b>です。会社の年末調整とは別に、自分で税務署（またはe-Tax）に申告します。</p>'
+      : '<p>給与以外の所得などが20万円以下なので、所得税の確定申告は<b>原則不要</b>です。ただし<b>住民税の申告</b>は必要なので、市区町村に申告してください（確定申告をすれば不要）。</p>') +
+    fill([['1年分の所得税（副業を含む）', r.annualTaxAll], ['会社の年末調整で精算された所得税', r.annualTax], ['副業先で引かれた所得税', r.sideWithheld],
+      [r.kakutei >= 0 ? '確定申告で追加で払う目安' : '確定申告で戻ってくる目安', Math.abs(r.kakutei)]]) +
+    '<p class="none">会社の年末調整の申告書の「合計所得金額（見積額）」には、副業の分も含めて書きます。' + (r.sideSalary ? '2か所目の会社の源泉徴収票は確定申告で使います。' : '') + '副業の分の住民税を自分で払いたい場合は、確定申告書の住民税の欄で「自分で納付（普通徴収）」を選びます。</p>'));
 
   // 4. 住宅ローン控除
   if (val('housing')) out.push(sec('4. 住宅借入金等特別控除申告書', '（2年目以降の人）', fill([['住宅借入金等特別控除額', val('housing')]]) +
@@ -1067,11 +1160,13 @@ const WIZ = [
   { q: '配偶者（夫・妻）はいますか？', help: '共働きでも「はい」を選んでください。配偶者の年収から、控除を受けられるかどうかを判定します。', gate: 'spouse', show: ['sec3'] },
   { q: '配偶者のほかに、養っている家族はいますか？', help: '子ども・親・祖父母など、生活費を出している家族です。16歳未満の子どもも入れると、住民税の計算に使います。', gate: 'deps', show: ['sec4'] },
   { q: '給料から引かれている社会保険料はいくらですか？', help: '給与明細の「健康保険」「厚生年金」「雇用保険」「介護保険」の1年分（ボーナスの分も）の合計です。わからなければ、ボタンで目安を入れられます。', show: ['sec5', 's5social'] },
-  { q: '生命保険・医療保険・個人年金・地震保険に入っていますか？', help: '秋ごろ保険会社から届く「控除証明書」のハガキの金額を入れます。', gate: 'life', show: ['sec5', 's5life'] },
+  { q: '生命保険・医療保険・個人年金・地震保険に入っていますか？', help: '秋ごろ保険会社から届く「控除証明書」のハガキの金額を入れます。2011年以前に契約した保険は「旧制度」の欄に入れます。', gate: 'life', show: ['sec5', 's5life'] },
   { q: '住宅ローン控除を受けますか？', help: '家を買って2年目以降で、住宅ローンが残っている人が対象です（1年目は確定申告）。', gate: 'house', show: ['sec5', 's5house'] },
+  { q: '会社の給料のほかに、収入はありますか？', help: 'アルバイトなどの副業、業務委託・フリーランスの仕事、ネット販売、年金、家賃収入などです。会社の年末調整とは別に、確定申告が必要かどうかと、その目安の金額がわかります。', gate: 'side', show: ['secSide'] },
   { q: 'おつかれさまでした！', help: '計算結果と、申告書のどの欄に何を書くかをまとめました。下の「年収の壁シミュレーション」では、家族の年収が変わったときの影響も見られます。入力を直したいときは「戻る」か、上の「一覧で入力」に切り替えてください。', final: true, show: ['secGuide', 'secWall'] },
 ];
-const LIFE_F = ['lifeGeneral', 'lifeMedical', 'lifePension', 'quake'];
+const LIFE_F = ['lifeGeneral', 'lifeMedical', 'lifePension', 'lifeGeneralOld', 'lifePensionOld', 'quake'];
+const SIDE_F = ['sideSalary', 'sideWithheld', 'bizRevenue', 'bizExpense', 'bizWithheld', 'otherIncome'];
 const GATES = {
   self: { get: () => $('selfDisability').value !== '0' || $('selfWidow').value !== '0' || $('student').checked,
     no: () => { $('selfDisability').value = '0'; $('selfWidow').value = '0'; $('student').checked = false; } },
@@ -1081,8 +1176,9 @@ const GATES = {
   deps: { get: () => deps.length > 0, yes: () => { if (!deps.length) $('addDep').click(); }, no: () => { deps = []; renderDeps(); } },
   life: { get: () => LIFE_F.some(f => val(f)), no: () => LIFE_F.forEach(f => $(f).value = '') },
   house: { get: () => val('housing') > 0, no: () => { $('housing').value = ''; } },
+  side: { get: () => SIDE_F.some(f => val(f)), no: () => SIDE_F.forEach(f => $(f).value = '') },
 };
-const SECS = ['sec1', 'sec2', 'sec3', 'sec4', 'sec5', 's5social', 's5life', 's5house', 'secWall', 'secGuide'];
+const SECS = ['sec1', 'sec2', 'sec3', 'sec4', 'sec5', 's5social', 's5life', 's5house', 'secSide', 'secWall', 'secGuide'];
 let view = 'list', wizStep = 0, wizAns = {};
 function gateAns(st) { return st.gate ? (wizAns[st.gate] || (GATES[st.gate].get() ? 'yes' : '')) : ''; }
 function applyView(scroll) {
@@ -1123,7 +1219,7 @@ $('wizBack').onclick = () => { if (wizStep > 0) { wizStep--; applyView(true); } 
 document.querySelectorAll('#viewTabs button').forEach(b => b.onclick = () => { view = b.dataset.view; applyView(); });
 
 // ===== 保存（このブラウザ内のみ） =====
-const FIELDS = ['monthly','months','bonus','bonusSummer','bonusWinter','directIncome','withheld','selfDisability','selfWidow','spouseIncome','spouseOld','spouseDisability','socialIns','socialIns2','ideco','lifeGeneral','lifeMedical','lifePension','quake','housing', ...MONTHS.map((_, i) => 'm' + i)];
+const FIELDS = ['monthly','months','bonus','bonusSummer','bonusWinter','directIncome','withheld','selfDisability','selfWidow','spouseIncome','spouseOld','spouseDisability','socialIns','socialIns2','ideco','lifeGeneral','lifeMedical','lifePension','lifeGeneralOld','lifePensionOld','quake','housing','sideSalary','sideWithheld','bizRevenue','bizExpense','bizWithheld','otherIncome', ...MONTHS.map((_, i) => 'm' + i)];
 function save() {
   try {
     const data = { incomeMode, deps, student: $('student').checked, hasSpouse: $('hasSpouse').checked,
