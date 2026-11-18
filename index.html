@@ -353,7 +353,7 @@ summary { cursor: pointer; color: var(--accent); }
   </section>
 
   <section class="card" style="margin-top:16px">
-    <p class="note" style="margin-top:0">※令和8年度税制改正（基礎控除最大104万円・給与所得控除最低74万円、いわゆる178万円の壁）に基づく概算です。給与所得控除は国税庁の別表第五に近い方法で計算していますが、端数で数円〜数百円ずれる場合があります。副業の青色申告特別控除・赤字の差し引き（損益通算）、株・FXなど分離課税の所得、医療費控除・ふるさと納税は計算に入れていません。最終的な金額は勤務先・国税庁の資料でご確認ください。</p>
+    <p class="note" style="margin-top:0">※令和8年度税制改正（基礎控除最大104万円・給与所得控除最低74万円、いわゆる178万円の壁）に基づく概算です。給与所得・各種控除額・税率は国税庁「令和8年分 年末調整のしかた」の表と照らし合わせています。住民税・手取りは目安です。副業の青色申告特別控除・赤字の差し引き（損益通算）、株・FXなど分離課税の所得、医療費控除・ふるさと納税は計算に入れていません。最終的な金額は勤務先・国税庁の資料でご確認ください。</p>
   </section>
 </aside>
 </main>
@@ -377,14 +377,16 @@ function salaryDeductionFormula(x) {
   return 1_950_000;
 }
 // 給与収入 → 給与所得（特例により最低保障74万円）
+// 国税庁「令和8年分 年末調整のしかた」3ページ・47〜54ページの表に合わせる
 function salaryIncome(x) {
-  if (x <= 0) return 0;
-  const MIN = 740_000;
-  // 660万円未満は年調用の表（4千円刻み）に近づけるため、千円単位で4で割って4倍
-  const a = (x < 6_600_000 && x >= 1_625_000) ? floorTo(x / 4, 1000) * 4 : x;
-  const ded = salaryDeductionFormula(a);
-  if (ded <= MIN) return Math.max(0, x - MIN);
-  return Math.max(0, Math.floor(a - ded));
+  if (x < 741_000) return 0;                 // 74万1,000円未満は所得なし
+  if (x < 2_191_000) return x - 740_000;     // 収入 − 74万円
+  if (x < 2_193_000) return 1_451_000;
+  if (x < 2_196_000) return 1_453_000;
+  if (x < 2_200_000) return 1_456_000;
+  // 220万円以上：660万円未満は年調用の表（4千円刻み）
+  const a = x < 6_600_000 ? floorTo(x / 4, 1000) * 4 : x;
+  return Math.floor(a - salaryDeductionFormula(a));
 }
 // 基礎控除（令和8・9年分の特例込み）
 function basicDeduction(totalIncome) {

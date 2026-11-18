@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>年末調整ツールの意見募集</title>
+<title>年末調整ツールの感想</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@700&display=swap">
 <style>
-/* Layout: one narrow reading column, a checklist like a 扶養控除等申告書 — each row a feature with a 3-way answer stamp */
+/* Layout: one narrow reading column; each row a feature with a segmented answer */
 :root {
   --bg: #f4f6f8; --paper: #ffffff; --ink: #1c2430; --muted: #5d6878; --line: #dde2e8;
   --accent: #1f6b5c; --accent-soft: #e2f1ec; --need: #1f6b5c; --skip: #b4462f; --skip-soft: #fbe9e4;
@@ -48,7 +48,7 @@ section { display: grid; gap: 12px; }
 .item h3 { margin: 0; font-size: 1rem; font-weight: 700; }
 .item p { margin: 2px 0 0; color: var(--muted); font-size: .88rem; }
 @media (max-width: 560px) { .item { grid-template-columns: minmax(0, 1fr); } }
-.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg { display: inline-flex; flex-wrap: wrap; max-width: 100%; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
 .seg button { border: 0; background: var(--paper); color: var(--ink); font: inherit; font-size: .85rem;
   padding: 6px 12px; cursor: pointer; }
 .seg button + button { border-left: 1px solid var(--line); }
@@ -85,34 +85,45 @@ textarea { min-height: 96px; resize: vertical; }
 <body>
 <div class="wrap" id="app">
   <header>
-    <h1>年末調整かんたん計算ツール<br>どの機能が必要か教えてください</h1>
-    <p class="lead">年末調整（令和8年分）の税金を、年収や家族の情報を入れるだけで計算できるツールを作っています。今ある機能をまとめたので、それぞれ「必要」「いらない」「どちらでも」を選んで、最後に「LINEで回答を送る」を押してください。2〜3分で終わります。</p>
+    <h1>年末調整かんたん計算ツール<br>使ってみた感想を教えてください</h1>
+    <p class="lead">アンケートでいただいた要望をもとに、機能を追加しました。実際に使ってみて、使いにくいところや、おかしな表示がなかったかを教えてください。答えられるところだけで大丈夫です。最後に「LINEで回答を送る」を押すと送れます。</p>
   </header>
 
   <div class="try">
-    <p><b>まず触ってみてください。</b>試作版が動きます（ログイン不要）。入力した数字はあなたのブラウザにだけ残り、ほかの人には見えません。</p>
-    <a href="index.html" target="_blank" rel="noopener">試作版を開く</a>
+    <p><b>まずツールを使ってみてください。</b>ログインは不要です。入力した数字は、あなたのブラウザの中にだけ残ります。この回答には含まれません。</p>
+    <a href="index.html" target="_blank" rel="noopener">ツールを開く</a>
   </div>
 
   <section>
+    <div class="sec-head"><h2>使った環境</h2></div>
+    <div class="list" id="env"></div>
+  </section>
+
+  <section>
     <div class="sec-head">
-      <h2>今できること</h2>
-      <p>入力すると、右側に「戻ってくるお金」か「追加で払うお金」がすぐ表示されます。</p>
+      <h2>それぞれの機能はどうでしたか？</h2>
+      <p>使っていない機能は「使ってない」を選んでください。</p>
     </div>
     <div class="list" id="features"></div>
   </section>
 
   <section>
     <div class="sec-head">
-      <h2>今はできないこと（追加するか検討中）</h2>
-      <p>あったら使いたいものに「ほしい」をつけてください。</p>
+      <h2>計算結果は合っていましたか？</h2>
+      <p>会社の年末調整の結果（12月か1月の給与明細、または源泉徴収票）と比べられたら教えてください。</p>
     </div>
-    <div class="list" id="ideas"></div>
+    <div class="list" id="match"></div>
+    <label class="f" for="matchNote">ずれていた場合、どの金額がどれくらい違いましたか<span>例：還付額がツールでは3万円、会社では2万8千円だった</span>
+      <input type="text" id="matchNote"></label>
   </section>
 
   <section>
-    <div class="sec-head"><h2>ほかに何かあれば</h2></div>
-    <label class="f" for="wish">ほしい機能・自由な意見<span>なければ空欄のままで大丈夫です</span>
+    <div class="sec-head"><h2>気になったところ</h2></div>
+    <label class="f" for="bug">エラーやおかしな表示<span>どの画面で、何をしたら、どうなったか。スクリーンショットがあれば、この回答のあとにLINEで送ってください</span>
+      <textarea id="bug"></textarea></label>
+    <label class="f" for="hard">使いにくかった・わかりにくかったところ<span>なければ空欄で大丈夫です</span>
+      <textarea id="hard"></textarea></label>
+    <label class="f" for="wish">もっとこうしてほしい・自由な意見<span>なければ空欄で大丈夫です</span>
       <textarea id="wish"></textarea></label>
     <div class="actions">
       <button class="btn primary" id="line" type="button">LINEで回答を送る</button>
@@ -125,80 +136,77 @@ textarea { min-height: 96px; resize: vertical; }
 </div>
 
 <script>
+// [キー, 見出し, 説明, 選択肢]
+const ENV = [
+  ['device', '使った端末', '', ['スマホ', 'パソコン', '両方']],
+  ['mode', '入力のしかた', '最初に出る「質問に答えて入力」か、「一覧で入力」か', ['質問形式', '一覧', '両方']],
+];
+const RATE = ['使いやすい', 'ふつう', 'わかりにくい', '使ってない'];
 const FEATURES = [
-  ['income', '年収の計算（3通り）', '「月給×月数＋賞与」「1〜12月を1か月ずつ入力」「年収を直接入力」から選べる'],
-  ['refund', '還付・追加徴収の表示', '今年すでに引かれた所得税を入れると、戻ってくる金額か追加で払う金額を大きく表示'],
-  ['self', '本人の控除', '障害者・寡婦・ひとり親・勤労学生をチェックするだけで反映'],
-  ['spouse', '配偶者控除の自動判定', '配偶者の年収を入れると、配偶者控除か配偶者特別控除か、いくらかを自動で判定'],
-  ['family', '扶養家族の自動判定', '家族ごとに年齢と年収を入れると、扶養控除・特定親族特別控除（19〜22歳）を判定。人数は自由に追加できる'],
-  ['social', '社会保険料の推計', '金額が分からなくても「年収の約15%」でざっくり入れられるボタン。iDeCoや国民年金も入力できる'],
-  ['insurance', '生命保険・地震保険の控除計算', '払った保険料を入れるだけで控除額を自動計算（新制度のみ）'],
-  ['housing', '住宅ローン控除', '申告書に書いた控除額を入れると税額から差し引く'],
-  ['breakdown', '計算の内訳と仕組みの説明', '年収 → 給与所得 → 控除 → 課税所得 → 税額の流れを1行ずつ表示。仕組みの説明つき'],
-  ['law', '2026年の改正に対応', '178万円の壁（基礎控除104万円など）、扶養の年収136万円の新しい基準で計算'],
-  ['autosave', '入力の自動保存', '閉じても同じブラウザなら入力内容が残る。リセットボタンで消せる'],
+  ['wizard', '質問に答えていく形式', '「配偶者はいますか？」に答えて1問ずつ進む画面'],
+  ['result', '還付・追加徴収と計算の内訳', '右側（スマホでは上か下）の計算結果'],
+  ['takehome', '手取り・住民税の目安', '計算結果の下の「手取りと住民税の目安」'],
+  ['wall', '年収の壁シミュレーション', '家族の年収を動かしたときのグラフと「壁」の一覧'],
+  ['form', '申告書の書き方ガイド', 'どの申告書のどの欄に何を書くかのまとめ'],
+  ['glossary', '用語の解説', '言葉の横の「？」ボタンと、いちばん下の用語一覧'],
+  ['oldlife', '旧制度の生命保険料', '2011年以前に契約した保険の入力欄'],
+  ['side', '副業・給与以外の収入', '「6」の欄と、確定申告の目安'],
 ];
-const IDEAS = [
-  ['takehome', '手取り額の計算', '年収から税金・社会保険料を引いた、実際に受け取れる金額'],
-  ['resident', '住民税の計算', '来年6月から引かれる住民税の目安'],
-  ['form', '申告書の書き方ガイド', '会社に出す申告書のどの欄に何を書けばいいかを案内'],
-  ['wall', '年収の壁シミュレーション', '配偶者や子どもがあといくら働くと税金や扶養が変わるかをグラフで表示'],
-  ['glossary', '用語の解説', '「給与所得」「源泉徴収」などの言葉をタップすると説明が出る'],
-  ['wizard', '質問に答えていく形式', '「結婚していますか？」のように1問ずつ答えて進む画面'],
-  ['oldlife', '旧制度の生命保険料', '2011年以前に契約した生命保険の控除計算'],
-  ['side', '副業・給与以外の収入', '副業や年金など、給与以外の所得がある人の計算'],
-];
-const LABELS = { need: '必要', maybe: 'どちらでも', skip: 'いらない' };
-const IDEA_LABELS = { need: 'ほしい', maybe: 'どちらでも', skip: 'いらない' };
+const MATCH = [['match', '会社の結果との比較', '', ['合っていた', '少しずれた', '大きくずれた', 'まだ比べていない']]];
+const TEXTS = [['matchNote', '■ずれていた金額'], ['bug', '■エラーやおかしな表示'], ['hard', '■使いにくかった・わかりにくかったところ'], ['wish', '■もっとこうしてほしい・自由な意見']];
 const answers = {};
 const $ = id => document.getElementById(id);
 
-function renderList(el, items, labels) {
+function renderList(el, items) {
   el.innerHTML = '';
-  for (const [key, title, desc] of items) {
+  for (const [key, title, desc, opts] of items) {
     const row = document.createElement('div'); row.className = 'item';
     const text = document.createElement('div');
-    const h = document.createElement('h3'); h.textContent = title;
-    const p = document.createElement('p'); p.textContent = desc;
-    text.append(h, p);
+    const h = document.createElement('h3'); h.textContent = title; text.append(h);
+    if (desc) { const p = document.createElement('p'); p.textContent = desc; text.append(p); }
     const seg = document.createElement('div'); seg.className = 'seg'; seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', title);
-    for (const v of ['need', 'maybe', 'skip']) {
-      const b = document.createElement('button'); b.type = 'button'; b.dataset.v = v; b.textContent = labels[v];
-      b.setAttribute('aria-pressed', answers[key] === v ? 'true' : 'false');
-      b.onclick = () => { answers[key] = answers[key] === v ? undefined : v; saveDraft(); renderAll(); };
+    (opts || RATE).forEach((label, i) => {
+      const b = document.createElement('button'); b.type = 'button'; b.textContent = label;
+      b.dataset.v = ['need', 'maybe', 'skip', 'maybe'][i];
+      b.setAttribute('aria-pressed', answers[key] === label ? 'true' : 'false');
+      b.onclick = () => { answers[key] = answers[key] === label ? undefined : label; saveDraft(); renderAll(); };
       seg.append(b);
-    }
-    const tally = document.createElement('div'); tally.className = 'tally'; tally.id = 'tally-' + key;
-    row.append(text, seg, tally);
+    });
+    row.append(text, seg);
     el.append(row);
   }
 }
 function renderAll() {
-  renderList($('features'), FEATURES, LABELS);
-  renderList($('ideas'), IDEAS, IDEA_LABELS);
-  renderTally();
+  renderList($('env'), ENV);
+  renderList($('features'), FEATURES);
+  renderList($('match'), MATCH);
 }
 
 function buildText() {
-  const lines = ['【年末調整ツールへの回答】', '', '■今ある機能'];
-  for (const [k, t] of FEATURES) lines.push(`・${t}：${answers[k] ? LABELS[answers[k]] : '未回答'}`);
-  lines.push('', '■追加候補');
-  for (const [k, t] of IDEAS) lines.push(`・${t}：${answers[k] ? IDEA_LABELS[answers[k]] : '未回答'}`);
-  lines.push('', '■ほしい機能・自由な意見', $('wish').value.trim() || '（なし）');
+  const lines = ['【年末調整ツールの感想】', ''];
+  for (const [k, t] of ENV) lines.push(`・${t}：${answers[k] || '未回答'}`);
+  lines.push('', '■機能ごとの使いやすさ');
+  for (const [k, t] of FEATURES) lines.push(`・${t}：${answers[k] || '未回答'}`);
+  lines.push('', `■会社の結果との比較：${answers.match || '未回答'}`);
+  for (const [id, t] of TEXTS) lines.push('', t, $(id).value.trim() || '（なし）');
   return lines.join('\n');
 }
 
 // 下書き（このブラウザのみ）
+const DRAFT = 'nencho-fb2-draft';
 function saveDraft() {
-  try { localStorage.setItem('nencho-fb-draft', JSON.stringify({ answers, wish: $('wish').value })); } catch (e) {}
+  try {
+    const d = { answers }; TEXTS.forEach(([id]) => d[id] = $(id).value);
+    localStorage.setItem(DRAFT, JSON.stringify(d));
+  } catch (e) {}
 }
 function loadDraft() {
   try {
-    const d = JSON.parse(localStorage.getItem('nencho-fb-draft') || 'null'); if (!d) return;
-    Object.assign(answers, d.answers || {}); $('wish').value = d.wish || '';
+    const d = JSON.parse(localStorage.getItem(DRAFT) || 'null'); if (!d) return;
+    Object.assign(answers, d.answers || {}); TEXTS.forEach(([id]) => $(id).value = d[id] || '');
   } catch (e) {}
 }
-$('wish').addEventListener('input', saveDraft);
+TEXTS.forEach(([id]) => $(id).addEventListener('input', saveDraft));
 
 function setStatus(msg, cls) { const s = $('status'); s.textContent = msg; s.className = 'status' + (cls ? ' ' + cls : ''); }
 
@@ -213,11 +221,10 @@ $('copy').onclick = () => {
 
 // LINEで送る（LINEアプリが開き、文章が入った状態になる）
 $('line').onclick = () => {
-  const answered = Object.values(answers).filter(Boolean).length;
-  if (!answered && !$('wish').value.trim()) { setStatus('どれか1つ以上答えてから送ってください。', 'err'); return; }
+  const answered = Object.values(answers).filter(Boolean).length + TEXTS.filter(([id]) => $(id).value.trim()).length;
+  if (!answered) { setStatus('どれか1つ以上答えてから送ってください。', 'err'); return; }
   window.location.href = 'https://line.me/R/msg/text/?' + encodeURIComponent(buildText());
 };
-function renderTally() {}
 
 loadDraft(); renderAll();
 </script>
