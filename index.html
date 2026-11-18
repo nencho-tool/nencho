@@ -18,6 +18,7 @@
   }
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 body { margin: 0; background: var(--bg); color: var(--text);
   font-family: "Hiragino Sans", "Yu Gothic UI", "Meiryo", system-ui, sans-serif; line-height: 1.6; }
 header { padding: 24px 16px 8px; max-width: 1100px; margin: 0 auto; }
@@ -53,8 +54,23 @@ input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 0;
 .dep-result { font-size: .85rem; color: var(--muted); margin-top: 6px; }
 .tag { display: inline-block; font-size: .78rem; padding: 1px 8px; border-radius: 99px;
   background: var(--accent-soft); color: var(--accent); font-weight: 600; }
-aside { position: sticky; top: 16px; }
-@media (max-width: 860px) { aside { position: static; } }
+aside { position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow-y: auto; }
+@media (max-width: 860px) { aside { position: static; max-height: none; overflow: visible; } }
+.term { display: inline-grid; place-items: center; width: 18px; height: 18px; margin-left: 4px; padding: 0;
+  border-radius: 50%; border: 1px solid var(--accent); background: var(--accent-soft); color: var(--accent);
+  font-size: .7rem; font-weight: 700; cursor: pointer; vertical-align: 1px; line-height: 1; flex: none; }
+.term:hover, .term[aria-expanded="true"] { background: var(--accent); color: #fff; }
+#tip { position: absolute; z-index: 50; max-width: min(320px, calc(100vw - 32px)); background: var(--card); color: var(--text);
+  border: 1px solid var(--accent); border-radius: 10px; padding: 10px 12px; font-size: .85rem; font-weight: 400;
+  box-shadow: 0 6px 24px rgba(0,0,0,.18); line-height: 1.6; }
+#tip b { display: block; margin-bottom: 2px; color: var(--accent); }
+.gloss dt { font-weight: 700; margin-top: 10px; }
+.gloss dd { margin: 2px 0 0; color: var(--muted); font-size: .88rem; }
+.warn { font-size: .8rem; color: var(--bad); background: var(--bad-soft); border-radius: 8px; padding: 8px 10px; margin-top: 10px; }
+.tedori-big { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap;
+  padding: 12px 14px; border-radius: 10px; background: var(--good-soft); color: var(--good); margin-bottom: 10px; }
+.tedori-big .amt { font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.tedori-big small { display: block; font-size: .8rem; font-weight: 600; }
 .result-big { text-align: center; padding: 16px; border-radius: 10px; margin-bottom: 12px; }
 .result-big.refund { background: var(--good-soft); color: var(--good); }
 .result-big.pay { background: var(--bad-soft); color: var(--bad); }
@@ -70,20 +86,20 @@ details { margin-top: 12px; font-size: .85rem; }
 summary { cursor: pointer; color: var(--accent); }
 .note { font-size: .78rem; color: var(--muted); margin-top: 12px; }
 .actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-@media print { .actions, .tabs, .btn { display: none !important; } main { grid-template-columns: 1fr; } aside { position: static; } }
+@media print { .actions, .tabs, .btn, .term, #tip, #glossCard { display: none !important; } aside { max-height: none; overflow: visible; } main { grid-template-columns: 1fr; } aside { position: static; } }
 </style>
 </head>
 <body>
 <header>
   <h1>かんたん年末調整　<span class="tag">令和8年分（2026年）</span></h1>
-  <p>上から順に入力すると、右側に「戻ってくるお金／追加で払うお金」がリアルタイムで表示されます。金額は「円」で入力（カンマなしでもOK）。<br><a href="survey.html" style="color:var(--accent);font-weight:600">→ 使ってみた感想・意見を送る</a></p>
+  <p>上から順に入力すると、右側に「戻ってくるお金／追加で払うお金」と「手取り・住民税の目安」がリアルタイムで表示されます。金額は「円」で入力（カンマなしでもOK）。わからない言葉は <span class="term" aria-hidden="true" style="cursor:default">?</span> を押すと説明が出ます。<br><a href="survey.html" style="color:var(--accent);font-weight:600">→ 使ってみた感想・意見を送る</a></p>
 </header>
 
 <main>
 <div>
   <!-- STEP 1 -->
   <section class="card">
-    <h2><span class="num">1</span>年収（給与の合計）</h2>
+    <h2><span class="num">1</span>年収（給与の合計）<button type="button" class="term" data-term="kyuyoShunyu" aria-label="用語の説明">?</button></h2>
     <p class="hint">源泉徴収票や給与明細の「総支給額」（税金・社会保険料を引く前の金額）を使います。</p>
     <div class="tabs" id="incomeTabs">
       <button data-mode="simple" class="on">月給×12でかんたん計算</button>
@@ -107,7 +123,7 @@ summary { cursor: pointer; color: var(--accent); }
     </div>
     <div class="sum-line"><span>年収（給与収入）</span><span id="incomeTotal">0 円</span></div>
     <div class="grid" style="margin-top:14px">
-      <label>今年すでに引かれた所得税 <small>（源泉徴収税額の合計）</small>
+      <label>今年すでに引かれた所得税<button type="button" class="term" data-term="gensen" aria-label="用語の説明">?</button> <small>（源泉徴収税額の合計）</small>
         <input type="text" id="withheld" inputmode="numeric" placeholder="給与明細の「所得税」の合計"></label>
     </div>
   </section>
@@ -117,25 +133,25 @@ summary { cursor: pointer; color: var(--accent); }
     <h2><span class="num">2</span>あなた自身のこと</h2>
     <p class="hint">当てはまるものだけチェック。</p>
     <div class="grid">
-      <label>障害者控除
+      <label>障害者控除<button type="button" class="term" data-term="shogai" aria-label="用語の説明">?</button>
         <select id="selfDisability">
           <option value="0">該当なし</option>
           <option value="270000">障害者（27万円）</option>
           <option value="400000">特別障害者（40万円）</option>
         </select></label>
-      <label>寡婦・ひとり親
+      <label>寡婦・ひとり親<button type="button" class="term" data-term="hitorioya" aria-label="用語の説明">?</button>
         <select id="selfWidow">
           <option value="0">該当なし</option>
           <option value="270000">寡婦（27万円）</option>
           <option value="350000">ひとり親（35万円）</option>
         </select></label>
     </div>
-    <label class="check"><input type="checkbox" id="student"> 勤労学生（27万円）</label>
+    <label class="check"><input type="checkbox" id="student"> 勤労学生（27万円）<button type="button" class="term" data-term="kinro" aria-label="用語の説明">?</button></label>
   </section>
 
   <!-- STEP 3 -->
   <section class="card">
-    <h2><span class="num">3</span>配偶者</h2>
+    <h2><span class="num">3</span>配偶者<button type="button" class="term" data-term="haigusha" aria-label="用語の説明">?</button><button type="button" class="term" data-term="haigushaToku" aria-label="用語の説明">?</button></h2>
     <p class="hint">配偶者の年収（給与のみ）を入れると、配偶者控除・配偶者特別控除を自動判定します。<br>令和8年分は <b>136万円以下で配偶者控除</b>、<b>207万円以下まで配偶者特別控除</b>の対象です。</p>
     <label class="check"><input type="checkbox" id="hasSpouse"> 配偶者がいる</label>
     <div id="spouseBox" class="grid" hidden style="margin-top:10px">
@@ -155,8 +171,8 @@ summary { cursor: pointer; color: var(--accent); }
 
   <!-- STEP 4 -->
   <section class="card">
-    <h2><span class="num">4</span>扶養している家族（子ども・親など）</h2>
-    <p class="hint">年齢は12月31日時点。年収（給与のみ）<b>136万円以下</b>なら扶養控除、19〜22歳は<b>197万円以下まで特定親族特別控除</b>の対象です。16歳未満は扶養控除なし（児童手当の対象）。</p>
+    <h2><span class="num">4</span>扶養している家族（子ども・親など）<button type="button" class="term" data-term="fuyo" aria-label="用語の説明">?</button></h2>
+    <p class="hint">年齢は12月31日時点。年収（給与のみ）<b>136万円以下</b>なら扶養控除、19〜22歳は<b>197万円以下まで特定親族特別控除</b><button type="button" class="term" data-term="tokuteiShinzoku" aria-label="用語の説明">?</button>の対象です。16歳未満は扶養控除なし（児童手当の対象）。</p>
     <div id="depList"></div>
     <button class="btn" id="addDep">＋ 家族を追加</button>
   </section>
@@ -166,25 +182,32 @@ summary { cursor: pointer; color: var(--accent); }
     <h2><span class="num">5</span>保険料など（支払った金額）</h2>
     <p class="hint">保険会社から届く「控除証明書」の金額を入力。控除額は自動で計算します。</p>
     <div class="grid">
-      <label>社会保険料 <small>（健康保険・厚生年金・雇用保険の年間合計。給与天引き分）</small>
+      <label>社会保険料<button type="button" class="term" data-term="shaho" aria-label="用語の説明">?</button> <small>（健康保険・厚生年金・雇用保険の年間合計。給与天引き分）</small>
         <input type="text" id="socialIns" inputmode="numeric" placeholder="自動推計も可"></label>
       <label>&nbsp;<button class="btn" id="estSocial" style="margin-top:4px;width:100%">年収の約15%で推計して入れる</button></label>
       <label>国民年金・国保など自分で払った分<input type="text" id="socialIns2" inputmode="numeric"></label>
-      <label>iDeCo・小規模企業共済<input type="text" id="ideco" inputmode="numeric"></label>
+      <label>iDeCo・小規模企業共済<button type="button" class="term" data-term="ideco" aria-label="用語の説明">?</button><input type="text" id="ideco" inputmode="numeric"></label>
     </div>
-    <h3 style="font-size:.95rem;margin:16px 0 8px">生命保険料（新制度）</h3>
+    <h3 style="font-size:.95rem;margin:16px 0 8px">生命保険料（新制度）<button type="button" class="term" data-term="seiho" aria-label="用語の説明">?</button></h3>
     <div class="grid">
       <label>一般生命保険料<input type="text" id="lifeGeneral" inputmode="numeric"></label>
       <label>介護医療保険料<input type="text" id="lifeMedical" inputmode="numeric"></label>
       <label>個人年金保険料<input type="text" id="lifePension" inputmode="numeric"></label>
-      <label>地震保険料<input type="text" id="quake" inputmode="numeric"></label>
+      <label>地震保険料<button type="button" class="term" data-term="jishin" aria-label="用語の説明">?</button><input type="text" id="quake" inputmode="numeric"></label>
     </div>
     <p class="hint" style="margin-top:8px" id="lifeHint"></p>
-    <h3 style="font-size:.95rem;margin:16px 0 8px">住宅ローン控除</h3>
+    <h3 style="font-size:.95rem;margin:16px 0 8px">住宅ローン控除<button type="button" class="term" data-term="jutaku" aria-label="用語の説明">?</button></h3>
     <div class="grid">
       <label>住宅借入金等特別控除額 <small>（申告書に記入した「控除額」）</small>
         <input type="text" id="housing" inputmode="numeric"></label>
     </div>
+  </section>
+
+  <section class="card" id="glossCard">
+    <details>
+      <summary style="font-size:1rem;font-weight:600">用語の解説（一覧）</summary>
+      <dl class="gloss" id="glossList"></dl>
+    </details>
   </section>
 </div>
 
@@ -208,10 +231,25 @@ summary { cursor: pointer; color: var(--accent); }
       <button class="btn primary" onclick="window.print()">印刷・PDF保存</button>
       <button class="btn" id="resetBtn">入力をリセット</button>
     </div>
-    <p class="note">※令和8年度税制改正（基礎控除最大104万円・給与所得控除最低74万円、いわゆる178万円の壁）に基づく概算です。給与所得控除は国税庁の別表第五に近い方法で計算していますが、端数で数円〜数百円ずれる場合があります。給与以外の所得がある方、旧制度の生命保険料がある方などは対象外です。最終的な金額は勤務先・国税庁の資料でご確認ください。</p>
+  </section>
+
+  <section class="card" id="tedoriCard">
+    <h2>手取りと住民税の目安<button type="button" class="term" data-term="tedori" aria-label="用語の説明">?</button></h2>
+    <div id="tedoriBox"><p class="hint">年収を入力すると表示されます。</p></div>
+    <details id="juminDetails">
+      <summary>住民税の計算の内訳</summary>
+      <table id="juminTable"></table>
+      <p class="note" style="margin-top:8px">住民税は「その年の所得」をもとに、<b>翌年6月〜翌々年5月</b>の給料から天引きされます。ここで出しているのは、今年（令和8年）の収入にかかる住民税（令和9年度分）の目安です。<br>標準的な税率（所得割10%・均等割5,000円）で計算しています。一部の自治体は均等割が上乗せされていたり、非課税となる基準額が違ったりします。ふるさと納税・医療費控除など、年末調整では扱わない控除は含めていません。</p>
+    </details>
+    <p class="note">※手取り＝年収 − 社会保険料 − 所得税 − 住民税。iDeCoの掛金や生命保険料は「貯蓄・支出」なので差し引いていません。</p>
+  </section>
+
+  <section class="card" style="margin-top:16px">
+    <p class="note" style="margin-top:0">※令和8年度税制改正（基礎控除最大104万円・給与所得控除最低74万円、いわゆる178万円の壁）に基づく概算です。給与所得控除は国税庁の別表第五に近い方法で計算していますが、端数で数円〜数百円ずれる場合があります。給与以外の所得がある方、旧制度の生命保険料がある方などは対象外です。最終的な金額は勤務先・国税庁の資料でご確認ください。</p>
   </section>
 </aside>
 </main>
+<div id="tip" role="tooltip" hidden></div>
 
 <script>
 // ===== ユーティリティ =====
@@ -313,6 +351,104 @@ function incomeTax(taxable) {
   for (const [lim, r, d] of t) if (taxable <= lim) return { tax: Math.max(0, Math.floor(taxable * r - d)), rate: r };
 }
 
+// ===== 住民税の控除額（所得税と金額が違うもの） =====
+// 基礎控除（住民税は令和8年度改正の対象外で43万円のまま）
+function basicDeductionResident(totalIncome) {
+  if (totalIncome <= 24_000_000) return 430_000;
+  if (totalIncome <= 24_500_000) return 290_000;
+  if (totalIncome <= 25_000_000) return 150_000;
+  return 0;
+}
+const DIS_R = { 0: 0, 270000: 260_000, 400000: 300_000, 750000: 530_000 };  // 障害者・特別障害者・同居特別障害者
+const WIDOW_R = { 0: 0, 270000: 260_000, 350000: 300_000 };                 // 寡婦・ひとり親（令和9年度分は30万円）
+function spouseDeductionResident(myIncome, spIncome, old) {
+  if (myIncome > 10_000_000) return 0;
+  const tier = myIncome <= 9_000_000 ? 0 : myIncome <= 9_500_000 ? 1 : 2;
+  if (spIncome <= DEP_LIMIT) return (old ? [380_000, 260_000, 130_000] : [330_000, 220_000, 110_000])[tier];
+  const table = [
+    [1_000_000, [330_000, 220_000, 110_000]], [1_050_000, [310_000, 210_000, 110_000]],
+    [1_100_000, [260_000, 180_000, 90_000]], [1_150_000, [210_000, 140_000, 70_000]],
+    [1_200_000, [160_000, 110_000, 60_000]], [1_250_000, [110_000, 80_000, 40_000]],
+    [1_300_000, [60_000, 40_000, 20_000]], [1_330_000, [30_000, 20_000, 10_000]],
+  ];
+  for (const [lim, t] of table) if (spIncome <= lim) return t[tier];
+  return 0;
+}
+function dependentDeductionResident(d) {
+  const inc = salaryIncome(d.income);
+  if (d.age === 'u16') return 0;
+  if (inc <= DEP_LIMIT) {
+    if (d.age === 'tokutei') return 450_000;
+    if (d.age === 'old') return d.livingTogether ? 450_000 : 380_000;
+    return 330_000;
+  }
+  if (d.age !== 'tokutei') return 0;
+  const table = [[950_000, 450_000], [1_000_000, 410_000], [1_050_000, 310_000], [1_100_000, 210_000],
+    [1_150_000, 110_000], [1_200_000, 60_000], [1_230_000, 30_000]];
+  for (const [lim, a] of table) if (inc <= lim) return a;
+  return 0;
+}
+// 生命保険料控除（住民税・新制度）：各2.8万円、合計7万円まで
+function lifeResident(p) {
+  if (p <= 12_000) return p;
+  if (p <= 32_000) return Math.ceil(p / 2 + 6_000);
+  if (p <= 56_000) return Math.ceil(p / 4 + 14_000);
+  return 28_000;
+}
+
+// ===== 用語の解説 =====
+const TERMS = {
+  kyuyoShunyu: ['給与収入（年収）', '会社から受け取った給料・賞与の合計。税金や社会保険料が引かれる前の「総支給額」です。非課税の通勤手当は含めません。'],
+  gensen: ['源泉徴収税額', '毎月の給料やボーナスから天引きされている所得税。給与明細の「所得税」欄の1年分の合計です。年末調整は、この「仮に引いた税金」と「本当の税額」の差を精算する手続きです。'],
+  kyuyoKojo: ['給与所得控除', '会社員の「必要経費」とみなして、年収から自動的に差し引かれる金額。自分で申告する必要はありません。令和8年分は最低74万円です。'],
+  kyuyoShotoku: ['給与所得', '年収から給与所得控除を引いた金額。税金の計算では、これが「あなたの所得」になります。'],
+  choseiShotoku: ['所得金額調整控除', '年収850万円を超える人で、23歳未満の扶養家族や特別障害者がいる場合に、給与所得を少し減らしてくれる控除です。'],
+  kazei: ['課税所得', '所得から各種控除を全部引いた残り。税率はこの金額にかかります。'],
+  nenzei: ['年税額', '1年間で本当に払うべき所得税。復興特別所得税（所得税の2.1%）を含みます。'],
+  kanpu: ['還付・徴収', '天引きされた税金が年税額より多ければ差額が戻ってきます（還付）。少なければ、不足分が12月か1月の給料から追加で引かれます（徴収）。'],
+  shaho: ['社会保険料控除', '健康保険・厚生年金・雇用保険・介護保険・国民年金・国民健康保険など、払った社会保険料の全額が差し引かれます。'],
+  ideco: ['小規模企業共済等掛金控除', 'iDeCo（個人型確定拠出年金）や小規模企業共済に払った掛金の全額が差し引かれます。'],
+  seiho: ['生命保険料控除', '生命保険・医療保険・個人年金保険の保険料に応じた控除。「一般」「介護医療」「個人年金」の3種類があり、所得税は合計で最大12万円、住民税は最大7万円です。'],
+  jishin: ['地震保険料控除', '地震保険料に応じた控除。所得税は全額（最大5万円）、住民税は半分（最大2.5万円）です。火災保険だけの部分は対象外です。'],
+  haigusha: ['配偶者控除', '配偶者の所得が62万円以下（給与だけなら年収136万円以下）のときに受けられる控除。あなた自身の所得が1,000万円を超えると受けられません。'],
+  haigushaToku: ['配偶者特別控除', '配偶者の年収が136万円を超えても、所得133万円（給与だけなら年収およそ207万円）以下までは、段階的に減りながら受けられる控除です。'],
+  fuyo: ['扶養控除', '16歳以上で、所得62万円以下（給与だけなら年収136万円以下）の家族を養っているときの控除。19〜22歳は「特定扶養」で63万円、70歳以上は「老人扶養」になります。'],
+  tokuteiShinzoku: ['特定親族特別控除', '19〜22歳の家族の年収が136万円を超えても、およそ197万円以下なら段階的に受けられる控除。大学生のアルバイトで扶養から外れても、親の負担が急に増えないようにする仕組みです。'],
+  kiso: ['基礎控除', '誰でも受けられる控除。令和8年分の所得税は、所得489万円以下なら104万円（特例を含む）。住民税は43万円です。'],
+  shogai: ['障害者控除', '本人や家族が障害者のときの控除。障害者手帳の等級などで、「特別障害者」に当たるかどうかが決まります。'],
+  hitorioya: ['寡婦・ひとり親控除', 'ひとり親（未婚・離婚・死別で子どもを養っている人）や、夫と離婚・死別した女性などが受けられる控除です。'],
+  kinro: ['勤労学生控除', '働いている学生で、所得が89万円以下のときの控除です。'],
+  jutaku: ['住宅ローン控除', '住宅ローンの年末残高に応じて、税金そのものから差し引かれる控除。所得税で引ききれない分は、上限の範囲内で住民税からも引かれます。'],
+  jumin: ['住民税', '住んでいる市区町村と都道府県に払う税金。前の年の所得をもとに計算され、翌年6月から翌々年5月まで、毎月の給料から天引きされます。'],
+  shotokuwari: ['所得割', '住民税のうち、所得に応じてかかる部分。課税所得の10%（市町村6%＋都道府県4%）です。'],
+  kintowari: ['均等割', '住民税のうち、所得に関係なく定額でかかる部分。標準で年5,000円（森林環境税1,000円を含む）です。'],
+  choseiKojo: ['調整控除', '住民税の控除額は所得税より小さく設定されています。その差で税負担が重くなりすぎないよう、住民税から差し引かれる金額です。'],
+  tedori: ['手取り', '年収から税金（所得税・住民税）と社会保険料を引いた、実際に使えるお金の目安です。'],
+};
+const termBtn = k => `<button type="button" class="term" data-term="${k}" aria-label="用語の説明">?</button>`;
+let tipOwner = null;
+function closeTip() { $('tip').hidden = true; if (tipOwner) tipOwner.setAttribute('aria-expanded', 'false'); tipOwner = null; }
+document.addEventListener('click', e => {
+  const b = e.target.closest('button.term');
+  if (!b) { if (!e.target.closest('#tip')) closeTip(); return; }
+  e.preventDefault();
+  if (tipOwner === b) { closeTip(); return; }
+  closeTip();
+  const [title, body] = TERMS[b.dataset.term] || ['', ''];
+  const tip = $('tip');
+  tip.innerHTML = `<b>${title}</b>${body}`;
+  tip.hidden = false;
+  const r = b.getBoundingClientRect(), w = tip.offsetWidth;
+  const left = Math.min(Math.max(16, r.left + r.width / 2 - w / 2), document.documentElement.clientWidth - w - 16);
+  tip.style.left = (left + window.scrollX) + 'px';
+  tip.style.top = (r.bottom + window.scrollY + 6) + 'px';
+  b.setAttribute('aria-expanded', 'true'); tipOwner = b;
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeTip(); });
+window.addEventListener('resize', closeTip);
+document.querySelector('aside').addEventListener('scroll', closeTip);
+$('glossList').innerHTML = Object.values(TERMS).map(([t, d]) => `<dt>${t}</dt><dd>${d}</dd>`).join('');
+
 // ===== 年収入力 =====
 let incomeMode = 'simple';
 const MONTHS = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
@@ -389,42 +525,56 @@ function calc() {
   if (income > 8_500_000 && (hasYoung || hasSpecialDis)) adj = Math.ceil((Math.min(income, 10_000_000) - 8_500_000) * 0.1);
   const totalIncome = Math.max(0, kyuyo - adj);
 
-  // 控除
-  const ded = [];
+  // 控除（ded：所得税、dedR：住民税、diffs：調整控除用の人的控除の差）
+  const ded = [], dedR = [];
+  let personalDiff = 0;
+  const both = (name, amt, amtR, key, personal) => {
+    ded.push([name, amt, key]); dedR.push([name, amtR, key]);
+    if (personal) personalDiff += Math.max(0, amt - amtR);
+  };
   const social = val('socialIns') + val('socialIns2');
-  ded.push(['社会保険料控除', social]);
-  ded.push(['小規模企業共済等掛金控除（iDeCo等）', val('ideco')]);
+  both('社会保険料控除', social, social, 'shaho');
+  both('小規模企業共済等掛金控除（iDeCo等）', val('ideco'), val('ideco'), 'ideco');
   const young23 = deps.some(d => ['u16', 'teen', 'tokutei'].includes(d.age) && salaryIncome(d.income) <= DEP_LIMIT);
   const lifeG = lifeNew(val('lifeGeneral'), young23 ? 60_000 : 40_000);
   const life = Math.min(120_000, lifeG + lifeNew(val('lifeMedical')) + lifeNew(val('lifePension')));
+  const lifeR = Math.min(70_000, lifeResident(val('lifeGeneral')) + lifeResident(val('lifeMedical')) + lifeResident(val('lifePension')));
   $('lifeHint').textContent = young23 ? '※23歳未満の扶養家族がいるため、一般生命保険料の上限は6万円（令和8年分の特例）で計算しています。' : '';
-  ded.push(['生命保険料控除', life]);
-  ded.push(['地震保険料控除', Math.min(50_000, val('quake'))]);
+  both('生命保険料控除', life, lifeR, 'seiho');
+  both('地震保険料控除', Math.min(50_000, val('quake')), Math.min(25_000, Math.floor(val('quake') / 2)), 'jishin');
 
-  let spouseInfo = '';
+  let spouseInfo = '', familyCount = 1;
   if ($('hasSpouse').checked) {
     const spInc = salaryIncome(val('spouseIncome'));
-    const s = spouseDeduction(totalIncome, spInc, $('spouseOld').value === '1');
-    ded.push([s.amt ? s.kind : '配偶者控除', s.amt]);
+    const old = $('spouseOld').value === '1';
+    const s = spouseDeduction(totalIncome, spInc, old);
+    const sR = spouseDeductionResident(totalIncome, spInc, old);
+    both(s.amt ? s.kind : '配偶者控除', s.amt, sR, s.kind.startsWith('配偶者特別') ? 'haigushaToku' : 'haigusha', true);
     const sd = spInc <= DEP_LIMIT ? Number($('spouseDisability').value) : 0;
-    if (sd) ded.push(['障害者控除（配偶者）', sd]);
+    if (sd) both('障害者控除（配偶者）', sd, DIS_R[sd], 'shogai', true);
+    if (spInc <= DEP_LIMIT) familyCount++;
     spouseInfo = `配偶者の所得：${yen(spInc)} → <b>${s.kind}${s.amt ? ' ' + yen(s.amt) : ''}</b>`;
   }
   $('spouseResult').innerHTML = spouseInfo;
 
-  let depTotal = 0, depDis = 0;
+  let depTotal = 0, depDis = 0, depTotalR = 0, depDisR = 0;
   deps.forEach((d, i) => {
     const r = dependentDeduction(d);
-    depTotal += r.amt; depDis += r.dis;
+    const rR = dependentDeductionResident(d);
+    depTotal += r.amt; depDis += r.dis; depTotalR += rR; depDisR += DIS_R[r.dis] || 0;
+    if (r.inc <= DEP_LIMIT) familyCount++;
     const el = $('depRes' + i);
     if (el) el.innerHTML = `所得：${yen(r.inc)} → <b>${r.kind}${r.amt ? ' ' + yen(r.amt) : ''}</b>${r.dis ? '　＋障害者控除 ' + yen(r.dis) : ''}`;
   });
-  ded.push(['扶養控除・特定親族特別控除', depTotal]);
-  const disTotal = Number($('selfDisability').value) + depDis;
-  ded.push(['障害者控除（本人・扶養家族）', disTotal]);
-  ded.push(['寡婦・ひとり親控除', Number($('selfWidow').value)]);
-  ded.push(['勤労学生控除', $('student').checked && totalIncome <= 850_000 ? 270_000 : 0]);
-  ded.push(['基礎控除', basicDeduction(totalIncome)]);
+  both('扶養控除・特定親族特別控除', depTotal, depTotalR, 'fuyo', true);
+  const selfDis = Number($('selfDisability').value), widow = Number($('selfWidow').value);
+  both('障害者控除（本人・扶養家族）', selfDis + depDis, (DIS_R[selfDis] || 0) + depDisR, 'shogai', true);
+  both('寡婦・ひとり親控除', widow, WIDOW_R[widow] || 0, 'hitorioya', true);
+  const student = $('student').checked && totalIncome <= 890_000;
+  both('勤労学生控除', student ? 270_000 : 0, student ? 260_000 : 0, 'kinro', true);
+  ded.push(['基礎控除', basicDeduction(totalIncome), 'kiso']);
+  dedR.push(['基礎控除', basicDeductionResident(totalIncome), 'kiso']);
+  if (totalIncome <= 25_000_000) personalDiff += 50_000; // 基礎控除の差は法律で5万円と決まっている
 
   const dedSum = ded.reduce((s, [, v]) => s + v, 0);
   const taxable = floorTo(Math.max(0, totalIncome - dedSum), 1000);
@@ -434,7 +584,32 @@ function calc() {
   const withheld = val('withheld');
   const diff = withheld - annualTax;
 
-  return { income, kyuyo, adj, totalIncome, ded, dedSum, taxable, tax, rate, housingCredit, annualTax, withheld, diff };
+  // ===== 住民税（令和9年度分：令和8年の所得にかかる分） =====
+  const dedSumR = dedR.reduce((s, [, v]) => s + v, 0);
+  const taxableR = floorTo(Math.max(0, totalIncome - dedSumR), 1000);
+  let choseiKojo = 0;
+  if (totalIncome <= 25_000_000 && taxableR > 0) {
+    choseiKojo = taxableR <= 2_000_000
+      ? Math.floor(Math.min(personalDiff, taxableR) * 0.05)
+      : Math.max(Math.floor((personalDiff - (taxableR - 2_000_000)) * 0.05), 2_500);
+  }
+  let shotokuwari = Math.max(0, Math.floor(taxableR * 0.10) - choseiKojo);
+  // 住宅ローン控除：所得税で引ききれなかった分を、所得税の課税所得×5%（上限97,500円）まで
+  const housingLeft = Math.max(0, val('housing') - housingCredit);
+  const housingR = Math.min(shotokuwari, housingLeft, Math.min(Math.floor(taxable * 0.05), 97_500));
+  shotokuwari = floorTo(shotokuwari - housingR, 100);
+  // 非課税の判定（生活保護の級地が1級地の場合の基準）
+  const n = familyCount;
+  const exemptAll = totalIncome <= 350_000 * n + 100_000 + (n > 1 ? 210_000 : 0)
+    || (totalIncome <= 1_350_000 && (selfDis || widow));
+  const exemptShotoku = exemptAll || totalIncome <= 350_000 * n + 100_000 + (n > 1 ? 320_000 : 0);
+  if (exemptShotoku) shotokuwari = 0;
+  const kintowari = exemptAll || !income ? 0 : 5_000;
+  const residentTax = shotokuwari + kintowari;
+
+  return { income, kyuyo, adj, totalIncome, ded, dedSum, taxable, tax, rate, housingCredit, annualTax, withheld, diff,
+    social, dedR, dedSumR, taxableR, personalDiff, choseiKojo, housingR, shotokuwari, kintowari, residentTax,
+    exemptAll, exemptShotoku };
 }
 
 function update() {
@@ -453,20 +628,56 @@ function update() {
     big.className = 'result-big even'; big.innerHTML = `<div class="lbl">過不足なし</div><div class="amt">0 円</div>`;
   }
   const rows = [
-    ['年収（給与収入）', r.income, 'total'],
-    ['給与所得控除', -(r.income - r.kyuyo), 'sub'],
-    ['給与所得', r.kyuyo, 'total'],
+    ['年収（給与収入）', r.income, 'total', 'kyuyoShunyu'],
+    ['給与所得控除', -(r.income - r.kyuyo), 'sub', 'kyuyoKojo'],
+    ['給与所得', r.kyuyo, 'total', 'kyuyoShotoku'],
   ];
-  if (r.adj) rows.push(['所得金額調整控除', -r.adj, 'sub']);
-  r.ded.filter(([, v]) => v).forEach(([k, v]) => rows.push([k, -v, 'sub']));
+  if (r.adj) rows.push(['所得金額調整控除', -r.adj, 'sub', 'choseiShotoku']);
+  r.ded.filter(([, v]) => v).forEach(([k, v, t]) => rows.push([k, -v, 'sub', t]));
   rows.push(['控除の合計', -r.dedSum, '']);
-  rows.push(['課税所得（千円未満切捨て）', r.taxable, 'total']);
+  rows.push(['課税所得（千円未満切捨て）', r.taxable, 'total', 'kazei']);
   rows.push([`所得税（税率 ${Math.round(r.rate * 100)}%）`, r.tax, '']);
-  if (r.housingCredit) rows.push(['住宅ローン控除', -r.housingCredit, 'sub']);
-  rows.push(['年税額（復興特別所得税込み）', r.annualTax, 'total']);
-  if (r.withheld) rows.push(['すでに引かれた税額', r.withheld, '']);
-  $('resultTable').innerHTML = rows.map(([k, v, c]) => `<tr class="${c}"><td>${k}</td><td>${v < 0 ? '−' + yen(-v) : yen(v)}</td></tr>`).join('');
+  if (r.housingCredit) rows.push(['住宅ローン控除', -r.housingCredit, 'sub', 'jutaku']);
+  rows.push(['年税額（復興特別所得税込み）', r.annualTax, 'total', 'nenzei']);
+  if (r.withheld) rows.push(['すでに引かれた税額', r.withheld, '', 'gensen']);
+  $('resultTable').innerHTML = renderRows(rows);
+  renderTedori(r);
   save();
+}
+function renderRows(rows) {
+  return rows.map(([k, v, c, t]) => `<tr class="${c}"><td>${k}${t ? termBtn(t) : ''}</td><td>${v < 0 ? '−' + yen(-v) : yen(v)}</td></tr>`).join('');
+}
+function renderTedori(r) {
+  if (!r.income) {
+    $('tedoriBox').innerHTML = '<p class="hint">年収を入力すると表示されます。</p>';
+    $('juminTable').innerHTML = '';
+    return;
+  }
+  const tedori = r.income - r.social - r.annualTax - r.residentTax;
+  const rows = [
+    ['年収（給与収入）', r.income, 'total', 'kyuyoShunyu'],
+    ['社会保険料', -r.social, 'sub', 'shaho'],
+    ['所得税（年税額）', -r.annualTax, 'sub', 'nenzei'],
+    ['住民税（目安）', -r.residentTax, 'sub', 'jumin'],
+    ['手取り（年間）', tedori, 'total', 'tedori'],
+  ];
+  $('tedoriBox').innerHTML = `
+    <div class="tedori-big"><div><small>手取り（年間）</small><span class="amt">${yen(tedori)}</span></div>
+      <div style="text-align:right"><small>月あたり（÷12）</small><b>${yen(tedori / 12)}</b></div></div>
+    <table>${renderRows(rows)}</table>
+    <p class="hint" style="margin:10px 0 0">住民税の目安：<b>年 ${yen(r.residentTax)}</b>（月あたり 約${yen(Math.floor(r.residentTax / 12))}）。令和9年6月から天引きされます。</p>
+    ${r.social ? '' : '<p class="warn">社会保険料が未入力のため、手取りが実際より多く出ています。STEP 5 の「年収の約15%で推計して入れる」ボタンで入れられます。</p>'}`;
+  const jr = [['給与所得', r.kyuyo, 'total', 'kyuyoShotoku']];
+  if (r.adj) jr.push(['所得金額調整控除', -r.adj, 'sub', 'choseiShotoku']);
+  r.dedR.filter(([, v]) => v).forEach(([k, v, t]) => jr.push([k, -v, 'sub', t]));
+  jr.push(['課税所得（千円未満切捨て）', r.taxableR, 'total', 'kazei']);
+  jr.push(['所得割（課税所得 × 10%）', Math.floor(r.taxableR * 0.10), '', 'shotokuwari']);
+  if (r.choseiKojo) jr.push(['調整控除', -r.choseiKojo, 'sub', 'choseiKojo']);
+  if (r.housingR) jr.push(['住宅ローン控除（所得税で引ききれない分）', -r.housingR, 'sub', 'jutaku']);
+  jr.push([r.exemptShotoku ? '所得割（所得が少ないため非課税）' : '所得割（百円未満切捨て）', r.shotokuwari, 'total', 'shotokuwari']);
+  jr.push([r.exemptAll ? '均等割（所得が少ないため非課税）' : '均等割', r.kintowari, '', 'kintowari']);
+  jr.push(['住民税（年額）', r.residentTax, 'total', 'jumin']);
+  $('juminTable').innerHTML = renderRows(jr);
 }
 
 // ===== 保存（このブラウザ内のみ） =====
