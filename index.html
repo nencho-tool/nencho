@@ -71,6 +71,43 @@ aside { position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow-y:
   padding: 12px 14px; border-radius: 10px; background: var(--good-soft); color: var(--good); margin-bottom: 10px; }
 .tedori-big .amt { font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; }
 .tedori-big small { display: block; font-size: .8rem; font-weight: 600; }
+#viewTabs button { font-weight: 600; }
+.wiz-progress { display: flex; align-items: center; gap: 10px; font-size: .8rem; color: var(--muted); margin-bottom: 10px; }
+.wiz-progress .bar { flex: 1; height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; }
+.wiz-progress .bar div { height: 100%; background: var(--accent); border-radius: 99px; transition: width .2s; }
+#wizQ { font-size: 1.25rem; }
+.wiz-yn { display: flex; gap: 8px; margin: 4px 0 8px; }
+.wiz-yn .btn { min-width: 96px; padding: 10px 16px; font-size: 1rem; }
+.wiz-yn .btn.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+.wiz-nav { display: flex; justify-content: space-between; gap: 8px; margin-top: 12px; }
+.wiz-nav .btn { padding: 10px 16px; font-size: 1rem; }
+#wizCard { border: 2px solid var(--accent); }
+@media (max-width: 860px) { body.wiz-mid aside { display: none; } body.wiz-final aside { order: -1; } }
+.wall-chart { position: relative; margin-top: 14px; touch-action: pan-y; }
+.wall-chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.wall-chart .gl { stroke: var(--line); stroke-width: 1; }
+.wall-chart .ax { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.wall-chart .wl { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 3; opacity: .7; }
+.wall-chart .wn { fill: var(--card); stroke: var(--muted); stroke-width: 1; }
+.wall-chart .wt { fill: var(--text); font-size: 10px; font-weight: 700; text-anchor: middle; dominant-baseline: central; }
+.wall-chart .ln { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; }
+.wall-chart .cur { fill: var(--accent); stroke: var(--card); stroke-width: 2; }
+.wall-chart .xh { stroke: var(--text); stroke-width: 1; opacity: .35; }
+.wall-chart .hv { fill: var(--accent); stroke: var(--card); stroke-width: 2; }
+.wall-tip { position: absolute; pointer-events: none; background: var(--card); border: 1px solid var(--line); border-radius: 8px;
+  padding: 6px 9px; font-size: .78rem; box-shadow: 0 4px 14px rgba(0,0,0,.15); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.wall-row { display: grid; grid-template-columns: 26px 1fr; gap: 8px; padding: 10px 0; border-bottom: 1px dashed var(--line); font-size: .88rem; }
+.wall-row .no { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--muted); display: grid; place-items: center; font-size: .75rem; font-weight: 700; }
+.wall-row .eff { color: var(--muted); font-size: .82rem; }
+.wall-row .eff b.down { color: var(--bad); }
+.guide details { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-top: 10px; }
+.guide summary { font-weight: 700; color: var(--text); }
+.guide summary small { font-weight: 400; color: var(--muted); }
+.guide h4 { font-size: .9rem; margin: 12px 0 4px; }
+.guide ul { margin: 4px 0; padding-left: 20px; font-size: .88rem; }
+.guide .fill { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; font-size: .88rem; background: var(--accent-soft); border-radius: 8px; padding: 8px 10px; margin: 6px 0; }
+.guide .fill span:nth-child(even) { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+.guide .none { color: var(--muted); font-size: .88rem; }
 .result-big { text-align: center; padding: 16px; border-radius: 10px; margin-bottom: 12px; }
 .result-big.refund { background: var(--good-soft); color: var(--good); }
 .result-big.pay { background: var(--bad-soft); color: var(--bad); }
@@ -86,19 +123,37 @@ details { margin-top: 12px; font-size: .85rem; }
 summary { cursor: pointer; color: var(--accent); }
 .note { font-size: .78rem; color: var(--muted); margin-top: 12px; }
 .actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-@media print { .actions, .tabs, .btn, .term, #tip, #glossCard { display: none !important; } aside { max-height: none; overflow: visible; } main { grid-template-columns: 1fr; } aside { position: static; } }
+@media print { .actions, .tabs, .btn, .term, #tip, #glossCard, #wizCard, #secWall { display: none !important; } .guide details { break-inside: avoid; } aside { max-height: none; overflow: visible; } main { grid-template-columns: 1fr; } aside { position: static; } }
 </style>
 </head>
 <body>
 <header>
   <h1>かんたん年末調整　<span class="tag">令和8年分（2026年）</span></h1>
   <p>上から順に入力すると、右側に「戻ってくるお金／追加で払うお金」と「手取り・住民税の目安」がリアルタイムで表示されます。金額は「円」で入力（カンマなしでもOK）。わからない言葉は <span class="term" aria-hidden="true" style="cursor:default">?</span> を押すと説明が出ます。<br><a href="survey.html" style="color:var(--accent);font-weight:600">→ 使ってみた感想・意見を送る</a></p>
+  <div class="tabs" id="viewTabs" style="margin:12px 0 0">
+    <button data-view="wiz">質問に答えて入力</button>
+    <button data-view="list">一覧で入力</button>
+  </div>
 </header>
 
 <main>
-<div>
+<div id="leftCol">
+  <section class="card" id="wizCard" hidden>
+    <div class="wiz-progress"><span id="wizCount"></span><div class="bar"><div id="wizBar"></div></div></div>
+    <h2 id="wizQ"></h2>
+    <p class="hint" id="wizHelp"></p>
+    <div class="wiz-yn" id="wizYN">
+      <button type="button" class="btn" data-ans="yes">はい</button>
+      <button type="button" class="btn" data-ans="no">いいえ</button>
+    </div>
+    <div class="wiz-nav">
+      <button type="button" class="btn" id="wizBack">← 戻る</button>
+      <button type="button" class="btn primary" id="wizNext">次へ →</button>
+    </div>
+  </section>
+
   <!-- STEP 1 -->
-  <section class="card">
+  <section class="card" id="sec1">
     <h2><span class="num">1</span>年収（給与の合計）<button type="button" class="term" data-term="kyuyoShunyu" aria-label="用語の説明">?</button></h2>
     <p class="hint">源泉徴収票や給与明細の「総支給額」（税金・社会保険料を引く前の金額）を使います。</p>
     <div class="tabs" id="incomeTabs">
@@ -129,7 +184,7 @@ summary { cursor: pointer; color: var(--accent); }
   </section>
 
   <!-- STEP 2 -->
-  <section class="card">
+  <section class="card" id="sec2">
     <h2><span class="num">2</span>あなた自身のこと</h2>
     <p class="hint">当てはまるものだけチェック。</p>
     <div class="grid">
@@ -150,7 +205,7 @@ summary { cursor: pointer; color: var(--accent); }
   </section>
 
   <!-- STEP 3 -->
-  <section class="card">
+  <section class="card" id="sec3">
     <h2><span class="num">3</span>配偶者<button type="button" class="term" data-term="haigusha" aria-label="用語の説明">?</button><button type="button" class="term" data-term="haigushaToku" aria-label="用語の説明">?</button></h2>
     <p class="hint">配偶者の年収（給与のみ）を入れると、配偶者控除・配偶者特別控除を自動判定します。<br>令和8年分は <b>136万円以下で配偶者控除</b>、<b>207万円以下まで配偶者特別控除</b>の対象です。</p>
     <label class="check"><input type="checkbox" id="hasSpouse"> 配偶者がいる</label>
@@ -170,7 +225,7 @@ summary { cursor: pointer; color: var(--accent); }
   </section>
 
   <!-- STEP 4 -->
-  <section class="card">
+  <section class="card" id="sec4">
     <h2><span class="num">4</span>扶養している家族（子ども・親など）<button type="button" class="term" data-term="fuyo" aria-label="用語の説明">?</button></h2>
     <p class="hint">年齢は12月31日時点。年収（給与のみ）<b>136万円以下</b>なら扶養控除、19〜22歳は<b>197万円以下まで特定親族特別控除</b><button type="button" class="term" data-term="tokuteiShinzoku" aria-label="用語の説明">?</button>の対象です。16歳未満は扶養控除なし（児童手当の対象）。</p>
     <div id="depList"></div>
@@ -178,16 +233,17 @@ summary { cursor: pointer; color: var(--accent); }
   </section>
 
   <!-- STEP 5 -->
-  <section class="card">
+  <section class="card" id="sec5">
     <h2><span class="num">5</span>保険料など（支払った金額）</h2>
     <p class="hint">保険会社から届く「控除証明書」の金額を入力。控除額は自動で計算します。</p>
-    <div class="grid">
+    <div class="grid" id="s5social">
       <label>社会保険料<button type="button" class="term" data-term="shaho" aria-label="用語の説明">?</button> <small>（健康保険・厚生年金・雇用保険の年間合計。給与天引き分）</small>
         <input type="text" id="socialIns" inputmode="numeric" placeholder="自動推計も可"></label>
       <label>&nbsp;<button class="btn" id="estSocial" style="margin-top:4px;width:100%">年収の約15%で推計して入れる</button></label>
       <label>国民年金・国保など自分で払った分<input type="text" id="socialIns2" inputmode="numeric"></label>
       <label>iDeCo・小規模企業共済<button type="button" class="term" data-term="ideco" aria-label="用語の説明">?</button><input type="text" id="ideco" inputmode="numeric"></label>
     </div>
+    <div id="s5life">
     <h3 style="font-size:.95rem;margin:16px 0 8px">生命保険料（新制度）<button type="button" class="term" data-term="seiho" aria-label="用語の説明">?</button></h3>
     <div class="grid">
       <label>一般生命保険料<input type="text" id="lifeGeneral" inputmode="numeric"></label>
@@ -196,11 +252,40 @@ summary { cursor: pointer; color: var(--accent); }
       <label>地震保険料<button type="button" class="term" data-term="jishin" aria-label="用語の説明">?</button><input type="text" id="quake" inputmode="numeric"></label>
     </div>
     <p class="hint" style="margin-top:8px" id="lifeHint"></p>
+    </div>
+    <div id="s5house">
     <h3 style="font-size:.95rem;margin:16px 0 8px">住宅ローン控除<button type="button" class="term" data-term="jutaku" aria-label="用語の説明">?</button></h3>
     <div class="grid">
       <label>住宅借入金等特別控除額 <small>（申告書に記入した「控除額」）</small>
         <input type="text" id="housing" inputmode="numeric"></label>
     </div>
+    <p class="hint" style="margin-top:8px">1年目は会社ではなく確定申告で受けます。2年目以降は、税務署から届く申告書と、金融機関の「年末残高等証明書」を会社に出します。</p>
+    </div>
+  </section>
+
+  <!-- 年収の壁 -->
+  <section class="card" id="secWall">
+    <h2>年収の壁シミュレーション</h2>
+    <p class="hint">誰かの年収が変わると、家族全体の手取りがどう変わるかをグラフにします。グラフにカーソルを当てる（スマホはタッチする）と金額が出ます。</p>
+    <div class="grid">
+      <label>年収を動かす人<select id="wallWho"></select></label>
+      <label>社会保険に入るライン<button type="button" class="term" data-term="shahoKanyu" aria-label="用語の説明">?</button>
+        <select id="wallSocial">
+          <option value="fuyo">扶養を外れたら（130万円〜）</option>
+          <option value="106">勤務先の条件で（106万円〜）</option>
+          <option value="always">はじめから加入している</option>
+        </select></label>
+    </div>
+    <div id="wallChart" class="wall-chart"></div>
+    <div id="wallList"></div>
+    <p class="note">※その人が社会保険に入ると、年収の約15%を保険料として計算します。扶養を外れて国民年金・国民健康保険に入る場合は、住んでいる市区町村によって金額が変わります。会社の家族手当（配偶者手当など）の条件は含めていません。勤務先の規定を確認してください。</p>
+  </section>
+
+  <!-- 申告書ガイド -->
+  <section class="card" id="secGuide">
+    <h2>申告書の書き方ガイド</h2>
+    <p class="hint">入力した内容をもとに、年末調整で出す申告書の<b>どの欄に何を書くか</b>をまとめます。会社のシステムで入力する場合も、項目は同じです。</p>
+    <div id="guideBox"></div>
   </section>
 
   <section class="card" id="glossCard">
@@ -423,6 +508,7 @@ const TERMS = {
   shotokuwari: ['所得割', '住民税のうち、所得に応じてかかる部分。課税所得の10%（市町村6%＋都道府県4%）です。'],
   kintowari: ['均等割', '住民税のうち、所得に関係なく定額でかかる部分。標準で年5,000円（森林環境税1,000円を含む）です。'],
   choseiKojo: ['調整控除', '住民税の控除額は所得税より小さく設定されています。その差で税負担が重くなりすぎないよう、住民税から差し引かれる金額です。'],
+  shahoKanyu: ['社会保険に入るライン', '年収が130万円以上になると、家族の社会保険の扶養から外れ、自分で健康保険・年金の保険料を払います（19〜22歳は150万円、60歳以上は180万円）。従業員51人以上の会社などで週20時間以上働く場合は、年収106万円（月8.8万円）以上で勤務先の社会保険に入ります。'],
   tedori: ['手取り', '年収から税金（所得税・住民税）と社会保険料を引いた、実際に使えるお金の目安です。'],
 };
 const termBtn = k => `<button type="button" class="term" data-term="${k}" aria-label="用語の説明">?</button>`;
@@ -513,15 +599,18 @@ $('hasSpouse').onchange = () => { $('spouseBox').hidden = !$('hasSpouse').checke
 $('estSocial').onclick = () => { const inc = getIncome(); if (inc) { $('socialIns').value = Math.round(inc * 0.15).toLocaleString('ja-JP'); update(); } };
 
 // ===== メイン計算 =====
-function calc() {
-  const income = getIncome();
+// o を渡すと「もし年収が○円だったら」の試算（画面は書き換えない）
+//   o.income：本人の年収、o.social：本人の社会保険料、o.spouseIncome：配偶者の年収、o.deps：家族の一覧
+function calc(o = {}) {
+  const sim = Object.keys(o).length > 0;
+  const deps_ = o.deps || deps;
+  const income = o.income ?? getIncome();
   const kyuyo = salaryIncome(income);
-  const rows = [];
 
   // 所得金額調整控除（850万円超で23歳未満の扶養・特別障害者がいる場合）
   let adj = 0;
-  const hasYoung = deps.some(d => ['u16', 'teen', 'tokutei'].includes(d.age));
-  const hasSpecialDis = $('selfDisability').value === '400000' || deps.some(d => d.disability >= 400000) || ($('hasSpouse').checked && Number($('spouseDisability').value) >= 400000);
+  const hasYoung = deps_.some(d => ['u16', 'teen', 'tokutei'].includes(d.age));
+  const hasSpecialDis = $('selfDisability').value === '400000' || deps_.some(d => d.disability >= 400000) || ($('hasSpouse').checked && Number($('spouseDisability').value) >= 400000);
   if (income > 8_500_000 && (hasYoung || hasSpecialDis)) adj = Math.ceil((Math.min(income, 10_000_000) - 8_500_000) * 0.1);
   const totalIncome = Math.max(0, kyuyo - adj);
 
@@ -532,20 +621,20 @@ function calc() {
     ded.push([name, amt, key]); dedR.push([name, amtR, key]);
     if (personal) personalDiff += Math.max(0, amt - amtR);
   };
-  const social = val('socialIns') + val('socialIns2');
+  const social = o.social ?? (val('socialIns') + val('socialIns2'));
   both('社会保険料控除', social, social, 'shaho');
   both('小規模企業共済等掛金控除（iDeCo等）', val('ideco'), val('ideco'), 'ideco');
-  const young23 = deps.some(d => ['u16', 'teen', 'tokutei'].includes(d.age) && salaryIncome(d.income) <= DEP_LIMIT);
+  const young23 = deps_.some(d => ['u16', 'teen', 'tokutei'].includes(d.age) && salaryIncome(d.income) <= DEP_LIMIT);
   const lifeG = lifeNew(val('lifeGeneral'), young23 ? 60_000 : 40_000);
   const life = Math.min(120_000, lifeG + lifeNew(val('lifeMedical')) + lifeNew(val('lifePension')));
   const lifeR = Math.min(70_000, lifeResident(val('lifeGeneral')) + lifeResident(val('lifeMedical')) + lifeResident(val('lifePension')));
-  $('lifeHint').textContent = young23 ? '※23歳未満の扶養家族がいるため、一般生命保険料の上限は6万円（令和8年分の特例）で計算しています。' : '';
+  if (!sim) $('lifeHint').textContent = young23 ? '※23歳未満の扶養家族がいるため、一般生命保険料の上限は6万円（令和8年分の特例）で計算しています。' : '';
   both('生命保険料控除', life, lifeR, 'seiho');
   both('地震保険料控除', Math.min(50_000, val('quake')), Math.min(25_000, Math.floor(val('quake') / 2)), 'jishin');
 
-  let spouseInfo = '', familyCount = 1;
+  let spouseInfo = '', familyCount = 1, sp = null;
   if ($('hasSpouse').checked) {
-    const spInc = salaryIncome(val('spouseIncome'));
+    const spInc = salaryIncome(o.spouseIncome ?? val('spouseIncome'));
     const old = $('spouseOld').value === '1';
     const s = spouseDeduction(totalIncome, spInc, old);
     const sR = spouseDeductionResident(totalIncome, spInc, old);
@@ -554,16 +643,19 @@ function calc() {
     if (sd) both('障害者控除（配偶者）', sd, DIS_R[sd], 'shogai', true);
     if (spInc <= DEP_LIMIT) familyCount++;
     spouseInfo = `配偶者の所得：${yen(spInc)} → <b>${s.kind}${s.amt ? ' ' + yen(s.amt) : ''}</b>`;
+    sp = { income: o.spouseIncome ?? val('spouseIncome'), inc: spInc, old, amt: s.amt, kind: s.kind, dis: sd };
   }
-  $('spouseResult').innerHTML = spouseInfo;
+  if (!sim) $('spouseResult').innerHTML = spouseInfo;
 
   let depTotal = 0, depDis = 0, depTotalR = 0, depDisR = 0;
-  deps.forEach((d, i) => {
+  const depResults = [];
+  deps_.forEach((d, i) => {
     const r = dependentDeduction(d);
     const rR = dependentDeductionResident(d);
     depTotal += r.amt; depDis += r.dis; depTotalR += rR; depDisR += DIS_R[r.dis] || 0;
     if (r.inc <= DEP_LIMIT) familyCount++;
-    const el = $('depRes' + i);
+    depResults.push({ d, ...r });
+    const el = sim ? null : $('depRes' + i);
     if (el) el.innerHTML = `所得：${yen(r.inc)} → <b>${r.kind}${r.amt ? ' ' + yen(r.amt) : ''}</b>${r.dis ? '　＋障害者控除 ' + yen(r.dis) : ''}`;
   });
   both('扶養控除・特定親族特別控除', depTotal, depTotalR, 'fuyo', true);
@@ -609,7 +701,8 @@ function calc() {
 
   return { income, kyuyo, adj, totalIncome, ded, dedSum, taxable, tax, rate, housingCredit, annualTax, withheld, diff,
     social, dedR, dedSumR, taxableR, personalDiff, choseiKojo, housingR, shotokuwari, kintowari, residentTax,
-    exemptAll, exemptShotoku };
+    exemptAll, exemptShotoku, sp, depResults, selfDis, widow, student, young23,
+    life, lifeG, basic: basicDeduction(totalIncome) };
 }
 
 function update() {
@@ -642,6 +735,8 @@ function update() {
   if (r.withheld) rows.push(['すでに引かれた税額', r.withheld, '', 'gensen']);
   $('resultTable').innerHTML = renderRows(rows);
   renderTedori(r);
+  renderGuide(r);
+  scheduleWall();
   save();
 }
 function renderRows(rows) {
@@ -680,18 +775,370 @@ function renderTedori(r) {
   $('juminTable').innerHTML = renderRows(jr);
 }
 
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const man = x => (Math.round(x / 1000) / 10).toLocaleString('ja-JP') + '万円';
+const AGE_LABEL = { u16: '16歳未満', teen: '16〜18歳', tokutei: '19〜22歳', general: '23〜69歳', old: '70歳以上' };
+const depName = (d, i) => d.name ? esc(d.name) : `家族${i + 1}`;
+// 給与所得が T 円以下に収まる最大の年収
+function maxSalaryFor(T) {
+  let lo = 0, hi = 50_000_000;
+  while (lo < hi) { const m = Math.ceil((lo + hi) / 2); if (salaryIncome(m) <= T) lo = m; else hi = m - 1; }
+  return lo;
+}
+
+// ===== 年収の壁シミュレーション =====
+// 給与だけの人（扶養家族なし）の所得税・住民税
+function ownTax(x, social) {
+  const inc = salaryIncome(x);
+  const t = floorTo(Math.max(0, inc - social - basicDeduction(inc)), 1000);
+  const it = floorTo(incomeTax(t).tax * 1.021, 100);
+  let rt = 0;
+  if (inc > 450_000) {
+    const tr = floorTo(Math.max(0, inc - social - 430_000), 1000);
+    const adjc = tr <= 2_000_000 ? Math.floor(Math.min(50_000, tr) * 0.05) : Math.max(Math.floor((50_000 - (tr - 2_000_000)) * 0.05), 2_500);
+    rt = floorTo(Math.max(0, Math.floor(tr * 0.1) - adjc), 100) + 5_000;
+  }
+  return { it, rt };
+}
+function socialLine(who) {
+  const mode = $('wallSocial').value;
+  if (mode === 'always') return 0;
+  if (mode === '106') return 1_060_000;
+  if (who.startsWith('dep:')) {
+    const d = deps[+who.slice(4)];
+    if (d && d.age === 'tokutei') return 1_500_000;
+    if (d && d.age === 'old') return 1_800_000;
+  }
+  if (who === 'spouse' && $('spouseOld').value === '1') return 1_800_000;
+  return 1_300_000;
+}
+function wallPoint(x, who) {
+  const line = socialLine(who);
+  const soc = x >= line ? Math.round(x * 0.15) : 0;
+  if (who === 'self') {
+    const r = calc({ income: x, social: soc + val('socialIns2') });
+    const own = x - r.social - r.annualTax - r.residentTax;
+    return { x, total: own, main: own, other: 0, it: r.annualTax, rt: r.residentTax, soc };
+  }
+  const i = who.startsWith('dep:') ? +who.slice(4) : -1;
+  const base = calc(i < 0 ? { spouseIncome: x } : { deps: deps.map((d, j) => j === i ? { ...d, income: x } : d) });
+  const main = base.income - base.social - base.annualTax - base.residentTax;
+  const t = ownTax(x, soc);
+  const other = x - soc - t.it - t.rt;
+  return { x, total: main + other, main, other, it: t.it, rt: t.rt, soc };
+}
+function wallDefs(who, pts, line) {
+  const W = []; // [年収, 'over'|'from', 説明]
+  const firstX = f => { const p = pts.find(f); return p ? p.x : null; };
+  if (line) {
+    const m = $('wallSocial').value;
+    W.push([line, 'from', m === '106'
+      ? '勤務先の社会保険に入る（週20時間以上・従業員51人以上の会社などの条件あり）。保険料が引かれるので手取りが減ります'
+      : `社会保険の扶養から外れ、自分で健康保険・年金の保険料を払います${line === 1_500_000 ? '（19〜22歳は150万円）' : line === 1_800_000 ? '（60歳以上は180万円）' : ''}`]);
+  }
+  // 住民税・所得税がかかり始める（グラフの点から求める）
+  const rtX = firstX(p => p.rt > 0), itX = firstX(p => p.it > 0);
+  const step = pts[1].x - pts[0].x;
+  const who_ = who === 'self' ? 'あなた' : 'その人';
+  if (rtX) W.push([refine(who, rtX - step, rtX, p => p.rt > 0), 'over', `${who_}に住民税がかかり始めます`]);
+  if (itX) W.push([refine(who, itX - step, itX, p => p.it > 0), 'over', `${who_}に所得税がかかり始めます`]);
+  if (who === 'spouse') {
+    W.push([maxSalaryFor(620_000), 'over', $('spouseOld').value === '1'
+      ? '配偶者控除（老人：48万円）が「配偶者特別控除」（38万円）に変わり、あなたの控除が減ります'
+      : '配偶者控除が「配偶者特別控除」に変わります（控除額は38万円のままなので、手取りは減りません）']);
+    W.push([maxSalaryFor(950_000), 'over', 'あなたの配偶者特別控除が少しずつ減り始めます']);
+    W.push([maxSalaryFor(1_330_000), 'over', 'あなたの配偶者特別控除がなくなります']);
+  } else if (who.startsWith('dep:')) {
+    const d = deps[+who.slice(4)];
+    if (d && d.age === 'tokutei') {
+      W.push([maxSalaryFor(620_000), 'over', '特定扶養控除が「特定親族特別控除」に変わります（控除額は63万円のままなので、手取りは減りません）']);
+      W.push([maxSalaryFor(850_000), 'over', 'あなたの特定親族特別控除が少しずつ減り始めます']);
+      W.push([maxSalaryFor(1_230_000), 'over', 'あなたの特定親族特別控除がなくなります']);
+    } else if (d && d.age !== 'u16') {
+      W.push([maxSalaryFor(620_000), 'over', `あなたの扶養控除（${d.age === 'old' ? '48万〜58万円' : '38万円'}）がなくなります`]);
+    }
+  } else {
+    W.push([maxSalaryFor(4_890_000), 'over', 'あなたの基礎控除が104万円→67万円に減ります']);
+    W.push([maxSalaryFor(6_550_000), 'over', 'あなたの基礎控除が67万円→62万円に減ります']);
+  }
+  return W.filter(w => w[0] > 0).sort((a, b) => a[0] - b[0]);
+}
+// 粗い刻みで見つけた境目を、1,000円単位で求め直す
+function refine(who, lo, hi, f) {
+  lo = Math.max(0, lo);
+  while (hi - lo > 1000) { const m = floorTo((lo + hi) / 2, 1000); if (f(wallPoint(m, who))) hi = m; else lo = m; }
+  return lo;
+}
+function wallOptions() {
+  const sel = $('wallWho'), cur = wallWhoSaved; // 自分で選んだ人だけを覚える（未選択なら先頭＝配偶者・家族を優先）
+  const opts = [];
+  if ($('hasSpouse').checked) opts.push(['spouse', '配偶者']);
+  deps.forEach((d, i) => opts.push(['dep:' + i, `${depName(d, i)}（${AGE_LABEL[d.age]}）`]));
+  opts.push(['self', 'あなた']);
+  sel.innerHTML = opts.map(([v, t]) => `<option value="${v}">${t}</option>`).join('');
+  sel.value = opts.some(([v]) => v === cur) ? cur : opts[0][0];
+  if (sel.value !== cur && !wallSocialTouched) $('wallSocial').value = sel.value === 'self' ? 'always' : 'fuyo';
+}
+let wallWhoSaved = '', wallSocialTouched = false, wallRaf = 0, wallData = null;
+function scheduleWall() { clearTimeout(wallRaf); wallRaf = setTimeout(renderWall, 30); }
+function renderWall() {
+  wallOptions();
+  const box = $('wallChart');
+  if ($('secWall').hidden || !box.clientWidth) return;
+  const who = $('wallWho').value;
+  const r = calc({ income: getIncome() });
+  if (!r.income) { box.innerHTML = '<p class="hint">STEP 1 で年収を入力すると表示されます。</p>'; $('wallList').innerHTML = ''; return; }
+  const xmax = who === 'self' ? Math.min(12_000_000, Math.max(2_500_000, Math.ceil(r.income * 1.3 / 500_000) * 500_000)) : 2_500_000;
+  const N = 250, step = xmax / N;
+  const pts = Array.from({ length: N + 1 }, (_, k) => wallPoint(Math.round(k * step), who));
+  const line = socialLine(who);
+  const walls = wallDefs(who, pts, line).filter(w => w[0] < xmax);
+  const curX = who === 'self' ? r.income : who === 'spouse' ? val('spouseIncome') : (deps[+who.slice(4)] || {}).income || 0;
+  wallData = { pts, who, xmax };
+
+  // 寸法
+  const W = box.clientWidth, H = W < 500 ? 230 : 280, ML = 46, MR = 14, MT = 30, MB = 28;
+  const ys = pts.map(p => p.total);
+  let y0 = Math.min(...ys), y1 = Math.max(...ys);
+  const span = Math.max(y1 - y0, 100_000);
+  const stepY = [10_000, 20_000, 50_000, 100_000, 200_000, 500_000, 1_000_000, 2_000_000].find(s => span / s <= 5) || 5_000_000;
+  y0 = Math.floor(y0 / stepY) * stepY; y1 = Math.ceil(y1 / stepY) * stepY; if (y1 === y0) y1 += stepY;
+  const sx = x => ML + x / xmax * (W - ML - MR);
+  const sy = y => MT + (1 - (y - y0) / (y1 - y0)) * (H - MT - MB);
+  let g = '';
+  for (let y = y0; y <= y1 + 1; y += stepY) g += `<line class="gl" x1="${ML}" x2="${W - MR}" y1="${sy(y)}" y2="${sy(y)}"/><text class="ax" x="${ML - 6}" y="${sy(y)}" text-anchor="end" dominant-baseline="central">${Math.round(y / 10_000).toLocaleString()}万</text>`;
+  const stepX = [250_000, 500_000, 1_000_000, 2_000_000].find(s => xmax / s <= (W < 500 ? 5 : 10));
+  for (let x = 0; x <= xmax; x += stepX) g += `<text class="ax" x="${sx(x)}" y="${H - MB + 16}" text-anchor="middle">${x / 10_000}万</text>`;
+  // 壁
+  const placed = [];
+  walls.forEach((w, k) => {
+    const X = sx(w[0]);
+    let cy = 11; while (placed.some(p => Math.abs(p.x - X) < 20 && p.y === cy)) cy += 20;
+    placed.push({ x: X, y: cy });
+    g += `<line class="wl" x1="${X}" x2="${X}" y1="${cy + 9}" y2="${H - MB}"/><circle class="wn" cx="${X}" cy="${cy}" r="9"/><text class="wt" x="${X}" y="${cy}">${k + 1}</text>`;
+  });
+  const d = pts.map((p, k) => `${k ? 'L' : 'M'}${sx(p.x).toFixed(1)},${sy(p.total).toFixed(1)}`).join('');
+  g += `<path class="ln" d="${d}"/>`;
+  if (curX <= xmax) {
+    const cp = pts[Math.min(N, Math.round(curX / step))];
+    g += `<circle class="cur" cx="${sx(curX)}" cy="${sy(cp.total)}" r="5"/><text class="ax" x="${sx(curX) + 8}" y="${sy(cp.total) + 14}" style="fill:var(--text);font-weight:700">いま</text>`;
+  }
+  g += `<line class="xh" id="wallXh" y1="${MT}" y2="${H - MB}" visibility="hidden"/><circle class="hv" id="wallHv" r="5" visibility="hidden"/>`;
+  g += `<rect x="${ML}" y="0" width="${W - ML - MR}" height="${H}" fill="transparent" id="wallHit"/>`;
+  const label = who === 'self' ? 'あなたの手取り' : '世帯の手取り（あなた＋その人）';
+  box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${label}と年収の関係のグラフ">${g}</svg><div class="wall-tip" id="wallTip" hidden></div>`;
+  box.insertAdjacentHTML('afterbegin', `<div class="hint" style="margin:0 0 4px">縦：${label}　横：${who === 'self' ? 'あなた' : 'その人'}の年収</div>`);
+
+  // ホバー
+  const svg = box.querySelector('svg'), tip = $('wallTip');
+  const move = e => {
+    const rect = svg.getBoundingClientRect();
+    const px = e.clientX - rect.left;
+    const k = Math.max(0, Math.min(N, Math.round((px - ML) / (W - ML - MR) * N)));
+    const p = pts[k];
+    $('wallXh').setAttribute('x1', sx(p.x)); $('wallXh').setAttribute('x2', sx(p.x)); $('wallXh').setAttribute('visibility', 'visible');
+    $('wallHv').setAttribute('cx', sx(p.x)); $('wallHv').setAttribute('cy', sy(p.total)); $('wallHv').setAttribute('visibility', 'visible');
+    tip.innerHTML = `年収 <b>${man(p.x)}</b><br>${label}：<b>${yen(p.total)}</b>` +
+      (who === 'self' ? '' : `<br><span style="color:var(--muted)">あなた ${yen(p.main)} ＋ その人 ${yen(p.other)}</span>`);
+    tip.hidden = false;
+    const tw = tip.offsetWidth;
+    tip.style.left = Math.min(Math.max(0, sx(p.x) - tw / 2), W - tw) + 'px';
+    tip.style.top = (box.querySelector('.hint').offsetHeight + Math.max(0, sy(p.total) - 70)) + 'px';
+  };
+  const leave = () => { tip.hidden = true; $('wallXh').setAttribute('visibility', 'hidden'); $('wallHv').setAttribute('visibility', 'hidden'); };
+  svg.addEventListener('pointermove', move); svg.addEventListener('pointerdown', move); svg.addEventListener('pointerleave', leave);
+
+  // 壁の一覧
+  const H_ = x => wallPoint(x, who).total;
+  const rows = walls.map((w, k) => {
+    const before = w[1] === 'over' ? w[0] : w[0] - 10_000, after = before + 10_000;
+    const hb = H_(before), ha = H_(after), dlt = ha - hb;
+    let eff;
+    if (dlt < 0) {
+      let back = null;
+      for (let x = after + 10_000; x <= after + 2_000_000; x += 10_000) if (H_(x) >= hb) { back = x; break; }
+      eff = `年収が1万円増えると、${who === 'self' ? '手取り' : '世帯の手取り'}が <b class="down">${yen(-dlt)} 減ります</b>。` + (back ? `元の手取りに戻るのは、年収 約${man(back)}からです。` : '');
+    } else {
+      eff = `年収が1万円増えたとき、${who === 'self' ? '手取り' : '世帯の手取り'}は <b>＋${yen(dlt)}</b>（手取りは減りません）。`;
+    }
+    return `<div class="wall-row"><span class="no">${k + 1}</span><div><b>${man(w[0])}${w[1] === 'over' ? 'を超える' : '以上になる'}と</b>：${w[2]}<div class="eff">${eff}</div></div></div>`;
+  });
+  const table = pts.filter((_, k) => k % (N / (xmax > 2_500_000 ? 25 : 25)) === 0)
+    .map(p => `<tr><td>${man(p.x)}</td><td>${yen(p.total)}</td></tr>`).join('');
+  $('wallList').innerHTML = rows.join('') +
+    `<details><summary>表で見る</summary><table><tr><td><b>年収</b></td><td><b>${label}</b></td></tr>${table}</table></details>`;
+}
+$('wallWho').addEventListener('change', () => { wallWhoSaved = $('wallWho').value; if (!wallSocialTouched) $('wallSocial').value = wallWhoSaved === 'self' ? 'always' : 'fuyo'; });
+$('wallSocial').addEventListener('change', () => { wallSocialTouched = true; });
+window.addEventListener('resize', scheduleWall);
+
+// ===== 申告書の書き方ガイド =====
+function renderGuide(r) {
+  const fill = rows => `<div class="fill">${rows.map(([k, v]) => `<span>${k}</span><span>${typeof v === 'number' ? yen(v) : v}</span>`).join('')}</div>`;
+  const sec = (title, sub, body, open = true) => `<details ${open ? 'open' : ''}><summary>${title} <small>${sub}</small></summary>${body}</details>`;
+  const out = [];
+  if (!r.income) { $('guideBox').innerHTML = '<p class="none">STEP 1 で年収を入力すると表示されます。</p>'; return; }
+
+  // 1. 扶養控除等申告書（令和9年分）
+  {
+    const li = [];
+    const sp = r.sp;
+    if (sp && r.totalIncome <= 9_000_000 && sp.inc <= 950_000) {
+      li.push(`<b>A 源泉控除対象配偶者</b>の欄に配偶者を書きます（来年の所得の見積額。今年と同じなら ${yen(sp.inc)}）。${sp.old ? '70歳以上なので「老人控除対象配偶者」に○。' : ''}`);
+    } else if (sp && sp.inc <= DEP_LIMIT && sp.dis) {
+      li.push('配偶者は「A」欄には書かず、<b>C 障害者</b>の欄で「同一生計配偶者」として書きます。');
+    } else if (sp) {
+      li.push('配偶者は書きません（所得が多いため、またはあなたの所得が900万円を超えるため）。配偶者特別控除は、別の申告書（2.）で受けます。');
+    }
+    r.depResults.forEach(({ d, inc }, i) => {
+      if (d.age === 'u16') li.push(`${depName(d, i)}：16歳未満なので、2枚目の<b>「住民税に関する事項」</b>の欄に書きます（所得税の控除はありませんが、住民税の計算に使われます）。`);
+      else if (inc <= DEP_LIMIT) li.push(`${depName(d, i)}：<b>B 控除対象扶養親族</b>の欄に書きます${d.age === 'tokutei' ? '（「特定扶養親族」に○）' : d.age === 'old' ? `（「老人扶養親族」に○${d.livingTogether ? '、「同居老親等」に○' : ''}）` : ''}。所得の見積額 ${yen(inc)}。`);
+      else if (d.age === 'tokutei' && inc <= 1_230_000) li.push(`${depName(d, i)}：所得が62万円を超えるので、この申告書には書きません。2. の「特定親族特別控除申告書」に書きます。`);
+      else li.push(`${depName(d, i)}：所得が多いため書きません。`);
+      if (d.disability && inc <= DEP_LIMIT) li.push(`${depName(d, i)}：<b>C 障害者</b>の欄にも書きます。`);
+    });
+    const c = [];
+    if (r.selfDis) c.push(r.selfDis === 400000 ? '本人：特別障害者' : '本人：一般の障害者');
+    if (r.widow) c.push(r.widow === 350000 ? 'ひとり親' : '寡婦');
+    if (r.student) c.push('勤労学生');
+    if (c.length) li.push(`<b>C 障害者、寡婦、ひとり親又は勤労学生</b>の欄に○：${c.join('・')}`);
+    if (!li.length) li.push('配偶者・扶養家族の欄は空欄でOKです。名前・住所・マイナンバーなどを書いて提出します。');
+    out.push(sec('1. 扶養控除等（異動）申告書', '（令和9年分＝来年の分。全員提出）',
+      `<ul>${li.map(x => `<li>${x}</li>`).join('')}</ul><p class="none">※来年の見込みで書きます。今年の途中で家族の状況が変わった場合は、今年の分（令和8年分）の申告書も訂正してください。</p>`));
+  }
+
+  // 2. 基礎控除申告書 兼 配偶者控除等申告書 兼 特定親族特別控除申告書 兼 所得金額調整控除申告書
+  {
+    let body = '<h4>基礎控除申告書（全員）</h4>' + fill([
+      ['給与の収入金額', r.income], ['給与の所得金額', r.kyuyo], ['あなたの合計所得金額（見積額）', r.totalIncome], ['基礎控除の額', r.basic]]);
+    body += '<p class="none">判定欄は、合計所得金額が当てはまる区分を選びます。</p>';
+    if (r.sp) {
+      const k1 = r.totalIncome <= 9_000_000 ? 'A' : r.totalIncome <= 9_500_000 ? 'B' : r.totalIncome <= 10_000_000 ? 'C' : null;
+      const sp = r.sp;
+      const k2 = sp.inc <= DEP_LIMIT ? (sp.old ? '①' : '②') : sp.inc <= 950_000 ? '③' : sp.inc <= 1_330_000 ? '④' : null;
+      body += '<h4>配偶者控除等申告書</h4>';
+      if (k1 && k2) body += fill([
+        ['配偶者の給与の収入金額', sp.income], ['配偶者の給与の所得金額', sp.inc], ['配偶者の合計所得金額（見積額）', sp.inc],
+        ['区分Ⅰ（あなたの所得）', k1], ['区分Ⅱ（配偶者の所得）', k2], [k2 === '①' || k2 === '②' ? '配偶者控除の額' : '配偶者特別控除の額', sp.amt]]);
+      else body += `<p class="none">${k1 ? '配偶者の所得が133万円を超える' : 'あなたの所得が1,000万円を超える'}ため、この欄は書きません。</p>`;
+    }
+    const tk = r.depResults.map((x, i) => ({ ...x, i })).filter(x => x.d.age === 'tokutei' && x.inc > DEP_LIMIT && x.inc <= 1_230_000);
+    if (tk.length) {
+      body += '<h4>特定親族特別控除申告書</h4>';
+      tk.forEach(x => body += `<p class="none" style="margin:6px 0 0">${depName(x.d, x.i)}（19〜22歳）</p>` + fill([['給与の収入金額', x.d.income], ['所得金額（見積額）', x.inc], ['控除額', x.amt]]));
+    }
+    if (r.adj) body += '<h4>所得金額調整控除申告書</h4><p class="none">年収が850万円を超えていて、23歳未満の扶養親族または特別障害者がいるので、要件の当てはまるところにチェックし、その家族の名前などを書きます。</p>';
+    else if (r.income > 8_500_000) body += '<h4>所得金額調整控除申告書</h4><p class="none">要件（23歳未満の扶養親族・特別障害者）に当てはまらないので書きません。</p>';
+    out.push(sec('2. 基礎控除申告書 兼 配偶者控除等申告書 兼 特定親族特別控除申告書 兼 所得金額調整控除申告書', '（令和8年分。全員提出）', body));
+  }
+
+  // 3. 保険料控除申告書
+  {
+    let body = '';
+    const g = val('lifeGeneral'), m = val('lifeMedical'), p = val('lifePension');
+    if (g || m || p) {
+      const rows = [];
+      if (g) rows.push(['一般生命保険料（新）の合計', g], ['　→ 計算後の金額', lifeNew(g, r.young23 ? 60_000 : 40_000)]);
+      if (m) rows.push(['介護医療保険料の合計', m], ['　→ 計算後の金額', lifeNew(m)]);
+      if (p) rows.push(['個人年金保険料（新）の合計', p], ['　→ 計算後の金額', lifeNew(p)]);
+      rows.push(['生命保険料控除額（最高12万円）', r.life]);
+      body += '<h4>生命保険料控除</h4>' + fill(rows) +
+        '<p class="none">保険会社名・保険の種類・契約者・受取人などは、控除証明書のハガキから写します。ハガキは添付します。' +
+        (r.young23 ? '<br>23歳未満の扶養家族がいるので、一般生命保険料の上限は6万円です（令和8年分の特例）。申告書の該当欄に記入してください。' : '') + '</p>';
+    }
+    if (val('quake')) body += '<h4>地震保険料控除</h4>' + fill([['地震保険料の合計', val('quake')], ['地震保険料控除額（最高5万円）', Math.min(50_000, val('quake'))]]) + '<p class="none">控除証明書を添付します。火災保険だけの部分は書きません。</p>';
+    if (val('socialIns2')) body += '<h4>社会保険料控除</h4>' + fill([['自分で払った社会保険料', val('socialIns2')]]) + '<p class="none">国民年金・国民健康保険など、<b>自分で払った分だけ</b>書きます（給料から天引きされている分は書きません）。国民年金は控除証明書を添付します。</p>';
+    if (val('ideco')) body += '<h4>小規模企業共済等掛金控除</h4>' + fill([['iDeCo・小規模企業共済の掛金', val('ideco')]]) + '<p class="none">自分の口座から払っている場合だけ書きます（給料から天引きされている場合は書きません）。払込証明書を添付します。</p>';
+    out.push(sec('3. 保険料控除申告書', '（令和8年分。保険料を払った人）', body || '<p class="none">入力された保険料がないので、書くものはありません。</p>', !!body));
+  }
+
+  // 4. 住宅ローン控除
+  if (val('housing')) out.push(sec('4. 住宅借入金等特別控除申告書', '（2年目以降の人）', fill([['住宅借入金等特別控除額', val('housing')]]) +
+    '<p class="none">税務署から届いた申告書に、金融機関の「年末残高等証明書」の金額を写して控除額を計算し、証明書と一緒に提出します。</p>'));
+
+  out.push('<p class="none" style="margin-top:10px">提出前のチェック：□ マイナンバー・住所の記入　□ 控除証明書のハガキを添付　□ 家族の所得は「見積額」でOK（年末までの見込み）</p>');
+  $('guideBox').innerHTML = `<div class="guide">${out.join('')}</div>`;
+}
+
+// ===== 質問に答えていく形式 =====
+const WIZ = [
+  { q: '1年間の給料（総支給）はいくらですか？', help: 'ボーナスも含めます。源泉徴収票がまだ届いていなければ、給与明細から計算できます。給料から引かれた所得税の合計がわかれば、それも入れると還付額が出ます。', show: ['sec1'] },
+  { q: 'あなた自身は、障害者・寡婦・ひとり親・勤労学生のどれかに当てはまりますか？', help: '当てはまらない人がほとんどです。わからなければ「いいえ」で大丈夫です。', gate: 'self', show: ['sec2'] },
+  { q: '配偶者（夫・妻）はいますか？', help: '共働きでも「はい」を選んでください。配偶者の年収から、控除を受けられるかどうかを判定します。', gate: 'spouse', show: ['sec3'] },
+  { q: '配偶者のほかに、養っている家族はいますか？', help: '子ども・親・祖父母など、生活費を出している家族です。16歳未満の子どもも入れると、住民税の計算に使います。', gate: 'deps', show: ['sec4'] },
+  { q: '給料から引かれている社会保険料はいくらですか？', help: '給与明細の「健康保険」「厚生年金」「雇用保険」「介護保険」の1年分（ボーナスの分も）の合計です。わからなければ、ボタンで目安を入れられます。', show: ['sec5', 's5social'] },
+  { q: '生命保険・医療保険・個人年金・地震保険に入っていますか？', help: '秋ごろ保険会社から届く「控除証明書」のハガキの金額を入れます。', gate: 'life', show: ['sec5', 's5life'] },
+  { q: '住宅ローン控除を受けますか？', help: '家を買って2年目以降で、住宅ローンが残っている人が対象です（1年目は確定申告）。', gate: 'house', show: ['sec5', 's5house'] },
+  { q: 'おつかれさまでした！', help: '計算結果と、申告書のどの欄に何を書くかをまとめました。下の「年収の壁シミュレーション」では、家族の年収が変わったときの影響も見られます。入力を直したいときは「戻る」か、上の「一覧で入力」に切り替えてください。', final: true, show: ['secGuide', 'secWall'] },
+];
+const LIFE_F = ['lifeGeneral', 'lifeMedical', 'lifePension', 'quake'];
+const GATES = {
+  self: { get: () => $('selfDisability').value !== '0' || $('selfWidow').value !== '0' || $('student').checked,
+    no: () => { $('selfDisability').value = '0'; $('selfWidow').value = '0'; $('student').checked = false; } },
+  spouse: { get: () => $('hasSpouse').checked,
+    yes: () => { $('hasSpouse').checked = true; $('spouseBox').hidden = false; },
+    no: () => { $('hasSpouse').checked = false; $('spouseBox').hidden = true; } },
+  deps: { get: () => deps.length > 0, yes: () => { if (!deps.length) $('addDep').click(); }, no: () => { deps = []; renderDeps(); } },
+  life: { get: () => LIFE_F.some(f => val(f)), no: () => LIFE_F.forEach(f => $(f).value = '') },
+  house: { get: () => val('housing') > 0, no: () => { $('housing').value = ''; } },
+};
+const SECS = ['sec1', 'sec2', 'sec3', 'sec4', 'sec5', 's5social', 's5life', 's5house', 'secWall', 'secGuide'];
+let view = 'list', wizStep = 0, wizAns = {};
+function gateAns(st) { return st.gate ? (wizAns[st.gate] || (GATES[st.gate].get() ? 'yes' : '')) : ''; }
+function applyView(scroll) {
+  document.querySelectorAll('#viewTabs button').forEach(b => b.classList.toggle('on', b.dataset.view === view));
+  const wiz = view === 'wiz';
+  $('wizCard').hidden = !wiz;
+  document.body.classList.toggle('wiz-mid', wiz && !WIZ[wizStep].final);
+  document.body.classList.toggle('wiz-final', wiz && !!WIZ[wizStep].final);
+  if (!wiz) { SECS.forEach(id => $(id).hidden = false); scheduleWall(); save(); return; }
+  const st = WIZ[wizStep], ans = gateAns(st);
+  const showSecs = !st.gate || ans === 'yes';
+  SECS.forEach(id => $(id).hidden = !(showSecs && st.show.includes(id)));
+  $('wizCount').textContent = `${wizStep + 1} / ${WIZ.length}`;
+  $('wizBar').style.width = ((wizStep + 1) / WIZ.length * 100) + '%';
+  $('wizQ').textContent = st.q;
+  $('wizHelp').textContent = st.help;
+  $('wizYN').hidden = !st.gate;
+  $('wizYN').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.ans === ans));
+  $('wizBack').style.visibility = wizStep ? 'visible' : 'hidden';
+  $('wizNext').hidden = !!st.final;
+  $('wizNext').disabled = !!st.gate && !ans;
+  $('wizNext').style.opacity = $('wizNext').disabled ? .5 : 1;
+  if (scroll) { const t = $('wizCard').getBoundingClientRect().top; if (t < 0) $('wizCard').scrollIntoView({ block: 'start' }); }
+  scheduleWall();
+  save();
+}
+$('wizYN').addEventListener('click', e => {
+  const ans = e.target.dataset.ans; if (!ans) return;
+  const st = WIZ[wizStep], g = GATES[st.gate];
+  wizAns[st.gate] = ans;
+  if (ans === 'yes') g.yes && g.yes(); else g.no();
+  update();
+  if (ans === 'no') wizStep++;
+  applyView(true);
+});
+$('wizNext').onclick = () => { if (wizStep < WIZ.length - 1) { wizStep++; applyView(true); } };
+$('wizBack').onclick = () => { if (wizStep > 0) { wizStep--; applyView(true); } };
+document.querySelectorAll('#viewTabs button').forEach(b => b.onclick = () => { view = b.dataset.view; applyView(); });
+
 // ===== 保存（このブラウザ内のみ） =====
 const FIELDS = ['monthly','months','bonus','bonusSummer','bonusWinter','directIncome','withheld','selfDisability','selfWidow','spouseIncome','spouseOld','spouseDisability','socialIns','socialIns2','ideco','lifeGeneral','lifeMedical','lifePension','quake','housing', ...MONTHS.map((_, i) => 'm' + i)];
 function save() {
   try {
-    const data = { incomeMode, deps, student: $('student').checked, hasSpouse: $('hasSpouse').checked };
+    const data = { incomeMode, deps, student: $('student').checked, hasSpouse: $('hasSpouse').checked,
+      view, wizStep, wizAns, wallWho: $('wallWho').value || wallWhoSaved, wallSocial: $('wallSocial').value, wallSocialTouched };
     FIELDS.forEach(f => data[f] = $(f).value);
     localStorage.setItem('nencho2026', JSON.stringify(data));
   } catch (e) {}
 }
 function load() {
   try {
-    const data = JSON.parse(localStorage.getItem('nencho2026') || 'null'); if (!data) return;
+    const data = JSON.parse(localStorage.getItem('nencho2026') || 'null');
+    if (!data) { view = 'wiz'; return; } // はじめての人は質問形式から
+    view = data.view || 'list'; wizStep = Math.min(data.wizStep || 0, WIZ.length - 1); wizAns = data.wizAns || {};
+    wallWhoSaved = data.wallWho || ''; wallSocialTouched = !!data.wallSocialTouched;
+    if (data.wallSocial) $('wallSocial').value = data.wallSocial;
     FIELDS.forEach(f => { if (data[f] !== undefined) $(f).value = data[f]; });
     deps = data.deps || []; $('student').checked = !!data.student; $('hasSpouse').checked = !!data.hasSpouse;
     $('spouseBox').hidden = !data.hasSpouse;
@@ -708,7 +1155,7 @@ document.addEventListener('focusout', e => {
   if (t.matches('input[inputmode=numeric]') && t.value) { const n = num(t.value); t.value = n ? n.toLocaleString('ja-JP') : ''; }
 });
 
-load(); renderDeps(); update();
+load(); renderDeps(); update(); applyView();
 </script>
 </body>
 </html>
